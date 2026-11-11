@@ -73,6 +73,12 @@ $ui = [
     'correct' => ['¡Correcto!', 'Correct!'],
     'incorrect' => ['Aún no. La respuesta correcta es:', 'Not quite. The correct answer is:'],
     'answer' => ['Respuesta correcta', 'Correct answer'],
+    'progress' => ['Tu progreso', 'Your progress'],
+    'login_to_save' => ['Inicia sesión con Google para guardar tu progreso', 'Sign in with Google to save your progress'],
+    'mark_complete' => ['Marcar curso como completado', 'Mark course as completed'],
+    'completed' => ['Curso completado', 'Course completed'],
+    'saving' => ['Guardando progreso...', 'Saving progress...'],
+    'progress_error' => ['No se pudo cargar o guardar el progreso. Inténtalo de nuevo.', 'Could not load or save progress. Please try again.'],
 ];
 $levels = ['basico' => ['Básico', 'Beginner'], 'intermedio' => ['Intermedio', 'Intermediate'], 'avanzado' => ['Avanzado', 'Advanced']];
 $audiences = ['maestros' => ['Maestros', 'Teachers'], 'alumnos' => ['Alumnos', 'Students'], 'general' => ['Público general', 'General public']];
@@ -277,6 +283,21 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       <div class="card-body p-4">
         <h2 class="h5"><?= h($ui['for'][$i]) ?></h2>
         <p class="meta mb-0"><?php foreach ($course['audience'] as $a): ?><span class="badge rounded-pill course-badge"><?= h($audiences[$a][$i]) ?></span><?php endforeach; ?></p>
+      </div>
+    </section>
+
+    <section class="course-progress card border-0 shadow-sm mt-4" data-course-progress
+      data-course-id="<?= h($course['id']) ?>"
+      data-login-url="api/auth.php?action=login&amp;course_id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>">
+      <div class="card-body p-4">
+        <h2 class="h5"><?= h($ui['progress'][$i]) ?></h2>
+        <p class="note" data-progress-status role="status" aria-live="polite"></p>
+        <button type="button" class="btn btn-primary" data-course-complete disabled
+          data-label-login="<?= h($ui['login_to_save'][$i]) ?>"
+          data-label-complete="<?= h($ui['mark_complete'][$i]) ?>"
+          data-label-completed="<?= h($ui['completed'][$i]) ?>"
+          data-label-saving="<?= h($ui['saving'][$i]) ?>"
+          data-label-error="<?= h($ui['progress_error'][$i]) ?>"><?= h($ui['saving'][$i]) ?></button>
       </div>
     </section>
   </article>

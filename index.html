@@ -27,11 +27,45 @@
   </nav>
   <input id="q" type="search" data-i18n-ph="search">
   <div class="tools">
-    <button id="lang" type="button" class="ghost"></button>
-    <button id="theme" type="button" class="ghost"></button>
     <button id="login" type="button" class="ghost"></button>
     <button id="register" type="button" class="solid"></button>
+    <div id="guest-preferences" class="guest-preferences">
+      <label>
+        <span class="visually-hidden" data-i18n="language"></span>
+        <select id="guest-language" aria-label="Language">
+          <option value="es" data-i18n="spanish"></option>
+          <option value="en" data-i18n="english"></option>
+        </select>
+      </label>
+      <label>
+        <span class="visually-hidden" data-i18n="theme"></span>
+        <select id="guest-theme" aria-label="Theme">
+          <option value="dark" data-i18n="dark"></option>
+          <option value="light" data-i18n="light"></option>
+        </select>
+      </label>
+    </div>
+    <div class="account-area" id="account-area" hidden>
+      <button id="account-trigger" class="account-trigger" type="button" aria-expanded="false" aria-controls="account-menu">
+        <img id="account-avatar" alt="" hidden>
+        <span id="account-initials" aria-hidden="true"></span>
+        <span class="visually-hidden" data-i18n="account_menu"></span>
+      </button>
+      <section id="account-menu" class="account-menu" aria-label="Account" hidden>
+        <div class="account-menu-user">
+          <img id="account-menu-avatar" alt="" hidden>
+          <span id="account-menu-initials" class="account-menu-initials" aria-hidden="true"></span>
+          <div>
+            <strong id="account-name"></strong>
+            <span id="account-email"></span>
+          </div>
+        </div>
+        <a id="account-profile-link" class="account-menu-link" href="profile.html" data-i18n="manage_profile"></a>
+        <button id="account-signout" class="account-menu-link" type="button" data-i18n="logout"></button>
+      </section>
+    </div>
   </div>
+  <p id="account-status" class="note" role="status" aria-live="polite" hidden></p>
 </header>
 
 <main>
@@ -112,13 +146,13 @@
 <footer class="foot"><small data-i18n="footer"></small><br><small id="source"></small></footer>
 
 <dialog id="dlg-auth">
-  <form id="auth-form" method="dialog">
+  <div>
     <h2 id="auth-title"></h2>
-    <label><span data-i18n="name_label"></span><input id="auth-name" required autocomplete="name"></label>
-    <button class="solid" value="ok" data-i18n="google"></button>
-    <button class="ghost" value="cancel" formnovalidate data-i18n="close"></button>
+    <a id="google-login" class="solid" href="api/auth.php?action=login" data-i18n="google"></a>
+    <button id="auth-close" class="ghost" type="button" data-i18n="close"></button>
     <p class="note" data-i18n="auth_note"></p>
-  </form>
+    <p id="auth-status" class="note" role="status" aria-live="polite"></p>
+  </div>
 </dialog>
 <dialog id="dlg-course"><div id="course-body"></div></dialog>
 </body>

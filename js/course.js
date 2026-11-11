@@ -69,3 +69,91 @@ document.querySelectorAll('[data-quiz-check]').forEach((button) => {
     feedback.dataset.state = correct ? 'correct' : 'incorrect';
   });
 });
+
+window.addEventListener('storage', (event) => {
+  if (event.key === 'theme' && event.newValue) {
+    try {
+      const theme = JSON.parse(event.newValue);
+      if (['dark', 'light'].includes(theme)) document.documentElement.dataset.theme = theme;
+    } catch (error) {
+      console.error('Could not read the changed theme preference:', error);
+    }
+  }
+  if (event.key === 'lang' && event.newValue) {
+    try {
+      const lang = JSON.parse(event.newValue);
+      if (['es', 'en'].includes(lang)) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.location.assign(url.href);
+      }
+    } catch (error) {
+      console.error('Could not read the changed language preference:', error);
+    }
+  }
+});
+
+const progressSection = document.querySelector('[data-course-progress]');
+const completionButton = document.querySelector('[data-course-complete]');
+
+if (progressSection && completionButton) {
+  const progressStatus = progressSection.querySelector('[data-progress-status]');
+  const labels = completionButton.dataset;
+  let csrfToken = '';
+  let completed = false;
+
+  async function loadProgress() {
+    try {
+      const sessionResponse = await fetch('api/auth.php?action=session', { cache: 'no-store' });
+      if (!sessionResponse.ok) throw new Error(`Session HTTP ${sessionResponse.status}`);
+      const session = await sessionResponse.json();
+      csrfToken = session.csrfToken;
+      if (!session.user) {
+        completionButton.textContent = labels.labelLogin;
+        completionButton.disabled = false;
+        return;
+      }
+
+      const progressResponse = await fetch('api/progress.php', { cache: 'no-store' });
+      if (!progressResponse.ok) throw new Error(`Progress HTTP ${progressResponse.status}`);
+      const progress = await progressResponse.json();
+      completed = Object.prototype.hasOwnProperty.call(progress.done, progressSection.dataset.courseId);
+      completionButton.textContent = completed ? labels.labelCompleted : labels.labelComplete;
+      completionButton.disabled = completed;
+    } catch (error) {
+      console.error('Could not load course progress:', error);
+      progressStatus.textContent = labels.labelError;
+      completionButton.disabled = true;
+    }
+  }
+
+  completionButton.addEventListener('click', async () => {
+    if (completed) return;
+    if (!csrfToken) {
+      window.location.assign(progressSection.dataset.loginUrl);
+      return;
+    }
+
+    completionButton.disabled = true;
+    completionButton.textContent = labels.labelSaving;
+    progressStatus.textContent = '';
+    try {
+      const response = await fetch('api/progress.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({ course_id: progressSection.dataset.courseId, completed: true }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+      completed = true;
+      completionButton.textContent = labels.labelCompleted;
+    } catch (error) {
+      console.error('Could not save course progress:', error);
+      progressStatus.textContent = labels.labelError;
+      completionButton.disabled = false;
+      completionButton.textContent = labels.labelComplete;
+    }
+  });
+
+  loadProgress();
+}
