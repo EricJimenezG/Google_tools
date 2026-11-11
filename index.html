@@ -32,6 +32,7 @@
     <button id="login" type="button" class="ghost"></button>
     <button id="register" type="button" class="solid"></button>
   </div>
+  <p id="account-status" class="note" role="status" aria-live="polite" hidden></p>
 </header>
 
 <main>
@@ -112,13 +113,13 @@
 <footer class="foot"><small data-i18n="footer"></small><br><small id="source"></small></footer>
 
 <dialog id="dlg-auth">
-  <form id="auth-form" method="dialog">
+  <div>
     <h2 id="auth-title"></h2>
-    <label><span data-i18n="name_label"></span><input id="auth-name" required autocomplete="name"></label>
-    <button class="solid" value="ok" data-i18n="google"></button>
-    <button class="ghost" value="cancel" formnovalidate data-i18n="close"></button>
+    <a id="google-login" class="solid" href="api/auth.php?action=login" data-i18n="google"></a>
+    <button id="auth-close" class="ghost" type="button" data-i18n="close"></button>
     <p class="note" data-i18n="auth_note"></p>
-  </form>
+    <p id="auth-status" class="note" role="status" aria-live="polite"></p>
+  </div>
 </dialog>
 <dialog id="dlg-course"><div id="course-body"></div></dialog>
 </body>
