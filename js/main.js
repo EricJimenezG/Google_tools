@@ -9,7 +9,7 @@ const I18N = {
     nav_courses: 'Cursos', nav_roadmap: 'Ruta de aprendizaje', nav_award: 'Reconocimiento', search: 'Buscar un curso',
     login: 'Iniciar sesión', register: 'Registrarse', register_title: 'Crear cuenta', logout: 'Salir', hi: 'Hola, {name}',
     to_light: 'Tema claro', to_dark: 'Tema oscuro', hero_sub: 'Pensado para maestros y alumnos: aprende las herramientas de Google, incluso las que nadie te enseñó.',
-    cta: 'Ver cursos', video_ph: 'Aquí va tu video de bienvenida', sound: 'Sonido', cat_all: 'Todos', cat_pop: 'Populares', cat_rare: 'Poco conocidas',
+    cta: 'Ver cursos', video_ph: 'Aquí va tu video de bienvenida', cat_all: 'Todos', cat_pop: 'Populares', cat_rare: 'Poco conocidas',
     lvl_all: 'Todos los niveles', lvl_basico: 'Básico', lvl_intermedio: 'Intermedio', lvl_avanzado: 'Avanzado', count: 'Resultados: {n}',
     empty: 'No hay cursos con esos filtros.', load_error: 'No se pudieron cargar los cursos. Abre el proyecto con un servidor local (mira el README).',
     road_sub: 'Sigue este orden para ir de lo básico a la automatización.', stage1: 'Fundamentos', stage2: 'Datos', stage3: 'Automatización e IA',
@@ -31,7 +31,7 @@ const I18N = {
     nav_courses: 'Courses', nav_roadmap: 'Learning path', nav_award: 'Recognition', search: 'Search a course',
     login: 'Log in', register: 'Sign up', register_title: 'Create account', logout: 'Log out', hi: 'Hi, {name}',
     to_light: 'Light theme', to_dark: 'Dark theme', hero_sub: 'Made for teachers and students: learn Google tools, even the ones nobody taught you.',
-    cta: 'Browse courses', video_ph: 'Your welcome video goes here', sound: 'Sound', cat_all: 'All', cat_pop: 'Popular', cat_rare: 'Lesser-known',
+    cta: 'Browse courses', video_ph: 'Your welcome video goes here', cat_all: 'All', cat_pop: 'Popular', cat_rare: 'Lesser-known',
     lvl_all: 'All levels', lvl_basico: 'Beginner', lvl_intermedio: 'Intermediate', lvl_avanzado: 'Advanced', count: 'Results: {n}',
     empty: 'No courses match those filters.', load_error: 'Courses could not be loaded. Open the project with a local server (see README).',
     road_sub: 'Follow this order to go from the basics to automation.', stage1: 'Foundations', stage2: 'Data', stage3: 'Automation and AI',
@@ -80,7 +80,6 @@ function applyI18n() {
     el.setAttribute('aria-label', el.placeholder);
   });
   $('#lang').textContent = lang === 'es' ? 'EN' : 'ES';
-  $('#sound').setAttribute('aria-label', t('sound'));
   $('#source').textContent = source ? `${t('src')}: ${source === 'php' ? 'PHP' : 'JSON'}` : '';
   $('#contact-form button').disabled = source !== 'php';
   $('#form-status').textContent = source === 'php' ? '' : t('form_nophp');
@@ -363,8 +362,7 @@ $('#contact-form').addEventListener('submit', async (e) => {
 
 // Video de bienvenida: muestra el recuadro hasta que el archivo cargue
 const video = $('#welcome');
-video.addEventListener('loadeddata', () => { $('#arch').classList.add('has-video'); $('#sound').hidden = false; });
-$('#sound').onclick = () => { video.muted = !video.muted; $('#sound').textContent = video.muted ? '🔇' : '🔊'; };
+video.addEventListener('loadeddata', () => { $('#arch').classList.add('has-video'); });
 
 (async function init() {
   for (const [kind, url] of SOURCES) {
