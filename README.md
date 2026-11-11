@@ -35,6 +35,10 @@ Academia web de herramientas de Google construida con HTML, CSS, JavaScript y PH
 
 El inicio de sesión utiliza OAuth de Google en el servidor: el backend protege el intercambio con `state` y PKCE, consulta el perfil verificado a Google y mantiene la cuenta mediante una sesión PHP. El navegador no recibe el secreto del cliente OAuth ni el token de acceso.
 
+El botón **Registrarse** crea el perfil local asociado a la cuenta de Google. **Iniciar sesión** solo permite cuentas ya registradas; si la cuenta no existe, el sitio pide registrarse primero.
+
 El progreso actual registra los cursos que el usuario marca como completados. Las cuentas se identifican por el identificador estable de Google y los avances se guardan en MySQL, por lo que se recuperan al iniciar sesión desde otro navegador. Esta primera etapa no guarda el módulo o video exacto en el que se quedó el usuario.
 
 Se almacenan el identificador de Google, correo, nombre, foto de perfil y fecha de finalización por curso. La pantalla de Google debe estar en modo de pruebas y autorizar las cuentas del equipo hasta que se decida publicar la aplicación. Para producción, usa HTTPS, una base de datos con un usuario de privilegios limitados y las URI de redireccionamiento del dominio desplegado.
+
+Al iniciar sesión, el avatar abre el menú de cuenta. **Administrar tu cuenta** abre `profile.html` en otra pestaña. El idioma y el tema se guardan en el almacenamiento local del navegador y se comparten entre pestañas del mismo sitio; no se guardan en MySQL ni viajan con la cuenta a otros dispositivos.

@@ -70,6 +70,29 @@ document.querySelectorAll('[data-quiz-check]').forEach((button) => {
   });
 });
 
+window.addEventListener('storage', (event) => {
+  if (event.key === 'theme' && event.newValue) {
+    try {
+      const theme = JSON.parse(event.newValue);
+      if (['dark', 'light'].includes(theme)) document.documentElement.dataset.theme = theme;
+    } catch (error) {
+      console.error('Could not read the changed theme preference:', error);
+    }
+  }
+  if (event.key === 'lang' && event.newValue) {
+    try {
+      const lang = JSON.parse(event.newValue);
+      if (['es', 'en'].includes(lang)) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.location.assign(url.href);
+      }
+    } catch (error) {
+      console.error('Could not read the changed language preference:', error);
+    }
+  }
+});
+
 const progressSection = document.querySelector('[data-course-progress]');
 const completionButton = document.querySelector('[data-course-complete]');
 

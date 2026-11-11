@@ -27,10 +27,27 @@
   </nav>
   <input id="q" type="search" data-i18n-ph="search">
   <div class="tools">
-    <button id="lang" type="button" class="ghost"></button>
-    <button id="theme" type="button" class="ghost"></button>
     <button id="login" type="button" class="ghost"></button>
     <button id="register" type="button" class="solid"></button>
+    <div class="account-area" id="account-area" hidden>
+      <button id="account-trigger" class="account-trigger" type="button" aria-expanded="false" aria-controls="account-menu">
+        <img id="account-avatar" alt="" hidden>
+        <span id="account-initials" aria-hidden="true"></span>
+        <span class="visually-hidden" data-i18n="account_menu"></span>
+      </button>
+      <section id="account-menu" class="account-menu" aria-label="Account" hidden>
+        <div class="account-menu-user">
+          <img id="account-menu-avatar" alt="" hidden>
+          <span id="account-menu-initials" class="account-menu-initials" aria-hidden="true"></span>
+          <div>
+            <strong id="account-name"></strong>
+            <span id="account-email"></span>
+          </div>
+        </div>
+        <a id="account-profile-link" class="account-menu-link" href="profile.html" target="_blank" rel="noopener" data-i18n="manage_profile"></a>
+        <button id="account-signout" class="account-menu-link" type="button" data-i18n="logout"></button>
+      </section>
+    </div>
   </div>
   <p id="account-status" class="note" role="status" aria-live="polite" hidden></p>
 </header>

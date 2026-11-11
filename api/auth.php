@@ -19,7 +19,7 @@ function redirect_after_auth(string $result): void
             exit;
         }
     } else {
-        unset($_SESSION['auth_return_course'], $_SESSION['auth_return_lang']);
+        unset($_SESSION['auth_return_course'], $_SESSION['auth_return_lang'], $_SESSION['oauth_mode']);
     }
     header('Location: ../index.html?auth=' . rawurlencode($result), true, 303);
     exit;
@@ -116,6 +116,8 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $verifier = base64url_encode(random_bytes(32));
     $_SESSION['oauth_state'] = $state;
     $_SESSION['oauth_code_verifier'] = $verifier;
+    $mode = $_GET['mode'] ?? 'login';
+    $_SESSION['oauth_mode'] = is_string($mode) && $mode === 'register' ? 'register' : 'login';
     $courseId = $_GET['course_id'] ?? '';
     $lang = $_GET['lang'] ?? 'es';
     if (is_string($courseId) && $courseId !== '' && in_array($lang, ['es', 'en'], true) &&
@@ -144,7 +146,8 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $state = $_GET['state'] ?? '';
     $expectedState = $_SESSION['oauth_state'] ?? '';
     $verifier = $_SESSION['oauth_code_verifier'] ?? '';
-    unset($_SESSION['oauth_state'], $_SESSION['oauth_code_verifier']);
+    $mode = $_SESSION['oauth_mode'] ?? 'login';
+    unset($_SESSION['oauth_state'], $_SESSION['oauth_code_verifier'], $_SESSION['oauth_mode']);
 
     if (!is_string($state) || !is_string($expectedState) || $expectedState === '' || !hash_equals($expectedState, $state)) {
         redirect_after_auth('error');
@@ -199,6 +202,13 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         $pdo = database();
+        $statement = $pdo->prepare('SELECT id FROM users WHERE google_sub = :google_sub');
+        $statement->execute(['google_sub' => $googleSub]);
+        $existingUserId = $statement->fetchColumn();
+        if ($mode !== 'register' && $existingUserId === false) {
+            redirect_after_auth('not_registered');
+        }
+
         $statement = $pdo->prepare(
             'INSERT INTO users (google_sub, email, display_name, picture_url)
              VALUES (:google_sub, :email, :display_name, :picture_url)
