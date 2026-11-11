@@ -30,11 +30,15 @@ try {
 
     $pdo = database();
     if ($method === 'POST') {
+        $pdo->beginTransaction();
         $enrollment = $pdo->prepare(
-            'SELECT 1 FROM course_enrollments WHERE user_id = :user_id AND course_id = :course_id'
+            'SELECT 1 FROM course_enrollments
+             WHERE user_id = :user_id AND course_id = :course_id
+             FOR UPDATE'
         );
         $enrollment->execute(['user_id' => $user['id'], 'course_id' => $courseId]);
         if ($enrollment->fetchColumn() === false) {
+            $pdo->rollBack();
             json_response(403, ['error' => 'course_enrollment_required']);
         }
     }
@@ -65,11 +69,17 @@ try {
     if (!is_string($completedAt)) {
         throw new RuntimeException('No se pudo recuperar el progreso guardado.');
     }
+    if ($pdo->inTransaction()) {
+        $pdo->commit();
+    }
     json_response(200, [
         'course_id' => $courseId,
         'completed_at' => str_replace(' ', 'T', $completedAt) . 'Z',
     ]);
 } catch (PDOException | RuntimeException $error) {
+    if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     error_log('Course progress request failed: ' . $error->getMessage());
     json_response(500, ['error' => 'progress_unavailable']);
 }

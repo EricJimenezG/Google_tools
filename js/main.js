@@ -329,6 +329,7 @@ async function signOut() {
     user = null;
     csrfToken = '';
     Object.keys(done).forEach((courseId) => delete done[courseId]);
+    enrolled.clear();
     authError = '';
     save('authChanged', Date.now());
     renderAuth(); renderAuthStatus();

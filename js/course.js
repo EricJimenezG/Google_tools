@@ -46,6 +46,49 @@ if (enrollmentSection && enrollmentButton) {
   });
 }
 
+const unenrollButton = document.querySelector('[data-course-unenroll]');
+
+if (unenrollButton) {
+  const status = document.querySelector('[data-unenroll-status]');
+  const labels = unenrollButton.dataset;
+
+  unenrollButton.addEventListener('click', async () => {
+    if (!window.confirm(labels.labelConfirm)) return;
+    unenrollButton.disabled = true;
+    unenrollButton.textContent = labels.labelSaving;
+    status.textContent = '';
+    try {
+      const sessionResponse = await fetch('api/auth.php?action=session', { cache: 'no-store' });
+      if (!sessionResponse.ok) throw new Error(`Session HTTP ${sessionResponse.status}`);
+      const session = await sessionResponse.json();
+      if (!session.user) throw new Error('authentication_required');
+
+      const response = await fetch('api/enrollment.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrfToken },
+        body: JSON.stringify({ course_id: unenrollButton.dataset.courseId }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        if (result.error === 'course_already_completed') {
+          throw new Error('course_already_completed');
+        }
+        throw new Error(result.error || `HTTP ${response.status}`);
+      }
+
+      localStorage.setItem('enrollmentChanged', String(Date.now()));
+      window.location.reload();
+    } catch (error) {
+      console.error('Could not unenroll from course:', error);
+      status.textContent = error.message === 'course_already_completed'
+        ? labels.labelCompleted
+        : labels.labelError;
+      unenrollButton.disabled = false;
+      unenrollButton.textContent = labels.labelUnenroll;
+    }
+  });
+}
+
 function selectModule(index) {
   const button = moduleButtons[index];
   if (!button) return;

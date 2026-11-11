@@ -170,6 +170,7 @@ a { color: var(--accent); }
 
 .course-page .course-intro,
 .course-page .course-goal,
+.course-page .course-enrollment,
 .course-page .course-journey,
 .course-page .course-outcomes,
 .course-page .course-material,
@@ -193,12 +194,46 @@ a { color: var(--accent); }
 
 .course-page .course-intro .card-body,
 .course-page .course-goal .card-body,
+.course-page .course-enrollment .card-body,
 .course-page .course-journey .card-body,
 .course-page .course-outcomes .card-body,
 .course-page .course-material .card-body,
 .course-page .course-quiz .card-body,
 .course-page .course-for .card-body {
   padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.course-page .course-enrollment {
+  max-width: 760px;
+  margin-inline: auto;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 68%),
+    var(--surface);
+}
+
+.course-page .course-enrollment h2 {
+  margin-bottom: 0.75rem;
+}
+
+.course-page .course-enrollment .note {
+  margin-bottom: 1.25rem;
+}
+
+.course-page .course-enrollment [data-enrollment-status]:empty {
+  display: none;
+}
+
+.course-page .course-enrollment .btn {
+  min-width: 210px;
+  padding: 0.7rem 1.3rem;
+}
+
+.course-page .course-progress-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .course-page h1,

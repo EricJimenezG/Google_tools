@@ -55,16 +55,23 @@ if ($course === null) {
 }
 $user = null;
 $isEnrolled = false;
+$isCompleted = false;
 start_app_session();
 header('Cache-Control: private, no-store');
 $user = authenticated_user();
 if ($course !== null && $user !== null) {
     try {
-        $statement = database()->prepare(
+        $pdo = database();
+        $statement = $pdo->prepare(
             'SELECT 1 FROM course_enrollments WHERE user_id = :user_id AND course_id = :course_id'
         );
         $statement->execute(['user_id' => $user['id'], 'course_id' => $course['id']]);
         $isEnrolled = $statement->fetchColumn() !== false;
+        $statement = $pdo->prepare(
+            'SELECT 1 FROM course_progress WHERE user_id = :user_id AND course_id = :course_id'
+        );
+        $statement->execute(['user_id' => $user['id'], 'course_id' => $course['id']]);
+        $isCompleted = $statement->fetchColumn() !== false;
     } catch (PDOException | RuntimeException $error) {
         error_log('Could not check course enrollment: ' . $error->getMessage());
         http_response_code(500);
@@ -104,6 +111,11 @@ $ui = [
     'enroll_action' => ['Registrarme a curso', 'Enroll in course'],
     'enroll_saving' => ['Registrando tu inscripción...', 'Enrolling you...'],
     'enroll_error' => ['No se pudo registrar tu inscripción. Inténtalo de nuevo.', 'Could not enroll you. Please try again.'],
+    'unenroll_action' => ['Darme de baja del curso', 'Unenroll from course'],
+    'unenroll_confirm' => ['¿Quieres darte de baja de este curso?', 'Are you sure you want to unenroll from this course?'],
+    'unenroll_saving' => ['Cancelando inscripción...', 'Unenrolling...'],
+    'unenroll_error' => ['No se pudo cancelar la inscripción. Inténtalo de nuevo.', 'Could not unenroll from the course. Please try again.'],
+    'unenroll_completed' => ['No puedes darte de baja de un curso completado.', 'You cannot unenroll from a completed course.'],
 ];
 $levels = ['basico' => ['Básico', 'Beginner'], 'intermedio' => ['Intermedio', 'Intermediate'], 'avanzado' => ['Avanzado', 'Advanced']];
 $audiences = ['maestros' => ['Maestros', 'Teachers'], 'alumnos' => ['Alumnos', 'Students'], 'general' => ['Público general', 'General public']];
@@ -201,6 +213,34 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       </div>
     </section>
 
+    <?php if (!empty($course['learning_outcomes'][$i])): ?>
+      <section class="course-outcomes card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+        <span class="section-kicker"><?= h($ui['outcomes'][$i]) ?></span>
+        <h2 class="h4 mt-2"><?= h($ui['outcomes'][$i]) ?></h2>
+        <ul class="outcomes-list">
+          <?php foreach ($course['learning_outcomes'][$i] as $outcome): ?><li><?= h($outcome) ?></li><?php endforeach; ?>
+        </ul>
+        </div>
+      </section>
+    <?php endif; ?>
+
+    <section class="course-material card border-0 shadow-sm mb-4">
+      <div class="card-body p-4 p-lg-5">
+      <span class="section-kicker"><?= h($ui['topics'][$i]) ?></span>
+      <h2 class="h3 mt-2"><?= h($ui['topics'][$i]) ?></h2>
+      <div class="modules-container">
+        <?php foreach ($course['topics'][$i] as $index => $topic): ?>
+          <?php $topicParts = preg_split('/\s+-\s+/', $topic, 2); ?>
+          <details class="module-step card">
+            <summary><span class="step-num badge rounded-circle"><?= $index + 1 ?></span><span class="step-content"><?= h($topicParts[0]) ?></span></summary>
+            <p><?= h($topicParts[1] ?? ($i === 0 ? 'Prueba este tema en tu cuenta y anota cómo lo aplicarías.' : 'Try this topic in your account and note how you would apply it.')) ?></p>
+          </details>
+        <?php endforeach; ?>
+      </div>
+      </div>
+    </section>
+
     <?php if (!$isEnrolled): ?>
       <section class="course-enrollment card border-0 shadow-sm mb-4" data-course-enrollment
         data-course-id="<?= h($course['id']) ?>"
@@ -265,34 +305,6 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       </section>
     <?php endif; ?>
 
-    <?php if (!empty($course['learning_outcomes'][$i])): ?>
-      <section class="course-outcomes card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-        <span class="section-kicker"><?= h($ui['outcomes'][$i]) ?></span>
-        <h2 class="h4 mt-2"><?= h($ui['outcomes'][$i]) ?></h2>
-        <ul class="outcomes-list">
-          <?php foreach ($course['learning_outcomes'][$i] as $outcome): ?><li><?= h($outcome) ?></li><?php endforeach; ?>
-        </ul>
-        </div>
-      </section>
-    <?php endif; ?>
-
-    <section class="course-material card border-0 shadow-sm mb-4">
-      <div class="card-body p-4 p-lg-5">
-      <span class="section-kicker"><?= h($ui['topics'][$i]) ?></span>
-      <h2 class="h3 mt-2"><?= h($ui['topics'][$i]) ?></h2>
-      <div class="modules-container">
-        <?php foreach ($course['topics'][$i] as $index => $topic): ?>
-          <?php $topicParts = preg_split('/\s+-\s+/', $topic, 2); ?>
-          <details class="module-step card">
-            <summary><span class="step-num badge rounded-circle"><?= $index + 1 ?></span><span class="step-content"><?= h($topicParts[0]) ?></span></summary>
-            <p><?= h($topicParts[1] ?? ($i === 0 ? 'Prueba este tema en tu cuenta y anota cómo lo aplicarías.' : 'Try this topic in your account and note how you would apply it.')) ?></p>
-          </details>
-        <?php endforeach; ?>
-      </div>
-      </div>
-    </section>
-
     <?php if (!empty($course['quiz']) && is_array($course['quiz'])): ?>
       <section class="course-quiz card border-0 shadow-sm mb-4">
         <div class="card-body p-4 p-lg-5">
@@ -338,12 +350,26 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       <div class="card-body p-4">
         <h2 class="h5"><?= h($ui['progress'][$i]) ?></h2>
         <p class="note" data-progress-status role="status" aria-live="polite"></p>
-        <button type="button" class="btn btn-primary" data-course-complete disabled
-          data-label-login="<?= h($ui['login_to_save'][$i]) ?>"
-          data-label-complete="<?= h($ui['mark_complete'][$i]) ?>"
-          data-label-completed="<?= h($ui['completed'][$i]) ?>"
-          data-label-saving="<?= h($ui['saving'][$i]) ?>"
-          data-label-error="<?= h($ui['progress_error'][$i]) ?>"><?= h($ui['saving'][$i]) ?></button>
+        <div class="course-progress-actions">
+          <button type="button" class="btn btn-primary" data-course-complete disabled
+            data-label-login="<?= h($ui['login_to_save'][$i]) ?>"
+            data-label-complete="<?= h($ui['mark_complete'][$i]) ?>"
+            data-label-completed="<?= h($ui['completed'][$i]) ?>"
+            data-label-saving="<?= h($ui['saving'][$i]) ?>"
+            data-label-error="<?= h($ui['progress_error'][$i]) ?>"><?= h($ui['saving'][$i]) ?></button>
+          <?php if (!$isCompleted): ?>
+            <button type="button" class="btn btn-outline-danger" data-course-unenroll
+              data-course-id="<?= h($course['id']) ?>"
+              data-label-unenroll="<?= h($ui['unenroll_action'][$i]) ?>"
+              data-label-confirm="<?= h($ui['unenroll_confirm'][$i]) ?>"
+              data-label-saving="<?= h($ui['unenroll_saving'][$i]) ?>"
+              data-label-error="<?= h($ui['unenroll_error'][$i]) ?>"
+              data-label-completed="<?= h($ui['unenroll_completed'][$i]) ?>"><?= h($ui['unenroll_action'][$i]) ?></button>
+          <?php endif; ?>
+        </div>
+        <?php if (!$isCompleted): ?>
+          <span class="note d-block mt-2" data-unenroll-status role="status" aria-live="polite"></span>
+        <?php endif; ?>
       </div>
     </section>
     <?php endif; ?>
