@@ -8,6 +8,7 @@ const I18N = {
   es: {
     nav_courses: 'Cursos', nav_roadmap: 'Ruta de aprendizaje', nav_award: 'Reconocimiento', search: 'Buscar un curso',
     login: 'Iniciar sesión', register: 'Registrarse', register_title: 'Crear cuenta', logout: 'Cerrar sesión', account_menu: 'Abrir menú de cuenta',
+    language: 'Idioma', spanish: 'Español', english: 'Inglés', theme: 'Tema', dark: 'Oscuro', light: 'Claro',
     manage_profile: 'Administrar tu cuenta', hero_sub: 'Pensado para maestros y alumnos: aprende las herramientas de Google, incluso las que nadie te enseñó.',
     cta: 'Ver cursos', video_ph: 'Aquí va tu video de bienvenida', sound: 'Sonido', cat_all: 'Todos', cat_pop: 'Populares', cat_rare: 'Poco conocidas',
     lvl_all: 'Todos los niveles', lvl_basico: 'Básico', lvl_intermedio: 'Intermedio', lvl_avanzado: 'Avanzado', count: 'Resultados: {n}',
@@ -23,6 +24,7 @@ const I18N = {
     auth_setup_error: 'El acceso con Google aún no está configurado. Revisa config/config.php y la configuración OAuth.',
     auth_cancelled: 'Se canceló el inicio de sesión con Google.', auth_failed: 'No se pudo completar el inicio de sesión. Inténtalo de nuevo.',
     auth_not_registered: 'Debes primero realizar tu registro con una cuenta de Google.',
+    auth_notice_title: 'Registro requerido',
     progress_error: 'No se pudo guardar el progreso. Comprueba la conexión e inténtalo otra vez.',
     logout_error: 'No se pudo cerrar la sesión. Inténtalo otra vez.',
     close: 'Cerrar', footer: 'Proyecto educativo, sin afiliación con Google.',
@@ -36,6 +38,7 @@ const I18N = {
   en: {
     nav_courses: 'Courses', nav_roadmap: 'Learning path', nav_award: 'Recognition', search: 'Search a course',
     login: 'Log in', register: 'Sign up', register_title: 'Create account', logout: 'Sign out', account_menu: 'Open account menu',
+    language: 'Language', spanish: 'Spanish', english: 'English', theme: 'Theme', dark: 'Dark', light: 'Light',
     manage_profile: 'Manage your account', hero_sub: 'Made for teachers and students: learn Google tools, even the ones nobody taught you.',
     cta: 'Browse courses', video_ph: 'Your welcome video goes here', sound: 'Sound', cat_all: 'All', cat_pop: 'Popular', cat_rare: 'Lesser-known',
     lvl_all: 'All levels', lvl_basico: 'Beginner', lvl_intermedio: 'Intermediate', lvl_avanzado: 'Advanced', count: 'Results: {n}',
@@ -51,6 +54,7 @@ const I18N = {
     auth_setup_error: 'Google sign-in is not configured yet. Check config/config.php and OAuth settings.',
     auth_cancelled: 'Google sign-in was cancelled.', auth_failed: 'Could not complete sign-in. Please try again.',
     auth_not_registered: 'You must register with a Google account first.',
+    auth_notice_title: 'Registration required',
     progress_error: 'Could not save your progress. Check the connection and try again.',
     logout_error: 'Could not sign out. Please try again.',
     close: 'Close', footer: 'Educational project, not affiliated with Google.',
@@ -87,9 +91,10 @@ function applyTheme() {
 
 function renderAuthStatus() {
   const status = $('#account-status');
-  status.hidden = !authError;
-  status.textContent = authError ? t(authError) : '';
-  $('#auth-status').textContent = authError ? t(authError) : '';
+  const isNotice = authError === 'auth_not_registered';
+  status.hidden = !authError || isNotice;
+  status.textContent = authError && !isNotice ? t(authError) : '';
+  $('#auth-status').textContent = authError && !isNotice ? t(authError) : '';
 }
 
 function applyI18n() {
@@ -100,6 +105,10 @@ function applyI18n() {
     el.setAttribute('aria-label', el.placeholder);
   });
   $('#sound').setAttribute('aria-label', t('sound'));
+  $('#guest-language').value = lang;
+  $('#guest-language').setAttribute('aria-label', t('language'));
+  $('#guest-theme').value = theme;
+  $('#guest-theme').setAttribute('aria-label', t('theme'));
   $('#source').textContent = source ? `${t('src')}: ${source === 'php' ? 'PHP' : 'JSON'}` : '';
   $('#contact-form button').disabled = source !== 'php';
   $('#form-status').textContent = source === 'php' ? '' : t('form_nophp');
@@ -153,6 +162,7 @@ function renderAuth() {
   const signedIn = Boolean(user);
   $('#login').hidden = signedIn;
   $('#register').hidden = signedIn;
+  $('#guest-preferences').hidden = signedIn;
   $('#account-area').hidden = !signedIn;
   $('#login').textContent = t('login');
   $('#register').textContent = t('register');
@@ -239,10 +249,28 @@ function canvaEmbedUrl(value) {
 }
 
 function openAuth(mode) {
+  const dialog = $('#dlg-auth');
+  dialog.classList.remove('auth-notice');
+  $('#google-login').hidden = false;
+  document.querySelector('[data-i18n="auth_note"]').hidden = false;
+  $('#auth-status').classList.remove('auth-alert-message');
   $('#auth-title').textContent = t(mode === 'login' ? 'login' : 'register_title');
   $('#google-login').href = `api/auth.php?action=login&mode=${mode === 'register' ? 'register' : 'login'}`;
   renderAuthStatus();
-  $('#dlg-auth').showModal();
+  dialog.showModal();
+}
+
+function openAuthNotice(messageKey) {
+  const dialog = $('#dlg-auth');
+  authError = '';
+  $('#account-status').hidden = true;
+  $('#auth-title').textContent = t('auth_notice_title');
+  $('#google-login').hidden = true;
+  document.querySelector('[data-i18n="auth_note"]').hidden = true;
+  $('#auth-status').textContent = t(messageKey);
+  $('#auth-status').classList.add('auth-alert-message');
+  dialog.classList.add('auth-notice');
+  dialog.showModal();
 }
 
 function openCourse(id) {
@@ -423,7 +451,26 @@ $('#login').onclick = () => { if (!user) openAuth('login'); };
 $('#register').onclick = () => {
   openAuth('register');
 };
+$('#guest-language').addEventListener('change', (event) => {
+  if (user) return;
+  lang = event.target.value;
+  save('lang', lang);
+  applyI18n();
+});
+$('#guest-theme').addEventListener('change', (event) => {
+  if (user) return;
+  theme = event.target.value;
+  save('theme', theme);
+  applyI18n();
+});
 $('#auth-close').addEventListener('click', () => $('#dlg-auth').close());
+$('#dlg-auth').addEventListener('close', () => {
+  $('#dlg-auth').classList.remove('auth-notice');
+  $('#google-login').hidden = false;
+  document.querySelector('[data-i18n="auth_note"]').hidden = false;
+  $('#auth-status').classList.remove('auth-alert-message');
+  $('#auth-status').textContent = '';
+});
 $('#account-trigger').addEventListener('click', () => {
   const menu = $('#account-menu');
   const expanded = $('#account-trigger').getAttribute('aria-expanded') === 'true';
@@ -466,6 +513,17 @@ async function loadAuthState() {
   user = session.user;
   csrfToken = session.csrfToken;
   if (user) {
+    const preferencesResponse = await fetch('api/preferences.php', { cache: 'no-store' });
+    if (!preferencesResponse.ok) throw new Error(`Preferences HTTP ${preferencesResponse.status}`);
+    const preferences = await preferencesResponse.json();
+    if (!['es', 'en'].includes(preferences.language) || !['dark', 'light'].includes(preferences.theme)) {
+      throw new Error('Invalid account preferences');
+    }
+    lang = preferences.language;
+    theme = preferences.theme;
+    save('lang', lang);
+    save('theme', theme);
+
     const progressResponse = await fetch('api/progress.php', { cache: 'no-store' });
     if (!progressResponse.ok) throw new Error(`Progress HTTP ${progressResponse.status}`);
     const progress = await progressResponse.json();
@@ -554,5 +612,5 @@ $('#sound').onclick = () => { video.muted = !video.muted; $('#sound').textConten
   }
   failed = !source;
   applyI18n();
-  if (authResult === 'not_registered') openAuth('login');
+  if (authResult === 'not_registered') openAuthNotice('auth_not_registered');
 })();

@@ -16,7 +16,9 @@ const PROFILE_I18N = {
     loading: 'Cargando tu perfil...',
     signedOut: 'Inicia sesión con Google para consultar tu perfil.',
     loadError: 'No se pudo cargar tu perfil. Comprueba que Apache y PHP estén activos.',
-    saved: 'Preferencias guardadas en este navegador.',
+    saved: 'Preferencias guardadas en tu cuenta.',
+    localSaved: 'Preferencias guardadas en este navegador.',
+    saveError: 'No se pudieron guardar tus preferencias. Inténtalo otra vez.',
     logoutError: 'No se pudo cerrar la sesión. Inténtalo otra vez.',
   },
   en: {
@@ -36,7 +38,9 @@ const PROFILE_I18N = {
     loading: 'Loading your profile...',
     signedOut: 'Sign in with Google to view your profile.',
     loadError: 'Could not load your profile. Make sure Apache and PHP are running.',
-    saved: 'Preferences saved in this browser.',
+    saved: 'Preferences saved to your account.',
+    localSaved: 'Preferences saved in this browser.',
+    saveError: 'Could not save your preferences. Please try again.',
     logoutError: 'Could not sign out. Please try again.',
   },
 };
@@ -52,6 +56,10 @@ const storedPreference = (key, fallback) => {
 
 let profileLanguage = storedPreference('lang', navigator.language?.startsWith('en') ? 'en' : 'es');
 let csrfToken = '';
+let profileUser = null;
+let profileTheme = storedPreference('theme', 'dark');
+let savedLanguage = profileLanguage;
+let savedTheme = profileTheme;
 const profileText = (key) => PROFILE_I18N[profileLanguage][key];
 
 function applyProfileLanguage() {
@@ -101,6 +109,25 @@ async function loadProfile() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const session = await response.json();
     csrfToken = session.csrfToken;
+    profileUser = session.user;
+    if (profileUser) {
+      const preferencesResponse = await fetch('api/preferences.php', { cache: 'no-store' });
+      if (!preferencesResponse.ok) throw new Error(`Preferences HTTP ${preferencesResponse.status}`);
+      const preferences = await preferencesResponse.json();
+      if (!['es', 'en'].includes(preferences.language) || !['dark', 'light'].includes(preferences.theme)) {
+        throw new Error('Invalid account preferences');
+      }
+      profileLanguage = preferences.language;
+      profileTheme = preferences.theme;
+      savedLanguage = profileLanguage;
+      savedTheme = profileTheme;
+      localStorage.setItem('lang', JSON.stringify(profileLanguage));
+      localStorage.setItem('theme', JSON.stringify(profileTheme));
+      profile$('#profile-language').value = profileLanguage;
+      profile$('#profile-theme').value = profileTheme;
+      document.documentElement.dataset.theme = profileTheme;
+      applyProfileLanguage();
+    }
     showProfile(session.user);
   } catch (error) {
     console.error('Could not load profile:', error);
@@ -111,21 +138,65 @@ async function loadProfile() {
 }
 
 profile$('#profile-language').value = profileLanguage;
-profile$('#profile-theme').value = storedPreference('theme', 'dark');
+profile$('#profile-theme').value = profileTheme;
 applyProfileLanguage();
 
-profile$('#profile-language').addEventListener('change', (event) => {
-  profileLanguage = event.target.value;
-  localStorage.setItem('lang', JSON.stringify(profileLanguage));
+async function savePreferences() {
+  const language = profile$('#profile-language').value;
+  const theme = profile$('#profile-theme').value;
+  profileLanguage = language;
+  profileTheme = theme;
   applyProfileLanguage();
-  profile$('#preferences-status').textContent = profileText('saved');
-});
+  document.documentElement.dataset.theme = theme;
+  profile$('#preferences-status').textContent = '';
 
-profile$('#profile-theme').addEventListener('change', (event) => {
-  document.documentElement.dataset.theme = event.target.value;
-  localStorage.setItem('theme', JSON.stringify(event.target.value));
-  profile$('#preferences-status').textContent = profileText('saved');
-});
+  if (!profileUser) {
+    localStorage.setItem('lang', JSON.stringify(language));
+    localStorage.setItem('theme', JSON.stringify(theme));
+    profile$('#preferences-status').textContent = profileText('localSaved');
+    return;
+  }
+
+  const languageSelect = profile$('#profile-language');
+  const themeSelect = profile$('#profile-theme');
+  languageSelect.disabled = true;
+  themeSelect.disabled = true;
+  try {
+    const response = await fetch('api/preferences.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ language, theme }),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+    profileLanguage = result.language;
+    profileTheme = result.theme;
+    savedLanguage = profileLanguage;
+    savedTheme = profileTheme;
+    languageSelect.value = profileLanguage;
+    themeSelect.value = profileTheme;
+    localStorage.setItem('lang', JSON.stringify(profileLanguage));
+    localStorage.setItem('theme', JSON.stringify(profileTheme));
+    document.documentElement.dataset.theme = profileTheme;
+    applyProfileLanguage();
+    profile$('#preferences-status').textContent = profileText('saved');
+  } catch (error) {
+    console.error('Could not save account preferences:', error);
+    profileLanguage = savedLanguage;
+    profileTheme = savedTheme;
+    languageSelect.value = savedLanguage;
+    themeSelect.value = savedTheme;
+    document.documentElement.dataset.theme = savedTheme;
+    applyProfileLanguage();
+    profile$('#preferences-status').textContent = profileText('saveError');
+  } finally {
+    languageSelect.disabled = false;
+    themeSelect.disabled = false;
+  }
+}
+
+profile$('#profile-language').addEventListener('change', savePreferences);
+profile$('#profile-theme').addEventListener('change', savePreferences);
 
 profile$('#profile-signout').addEventListener('click', async () => {
   const button = profile$('#profile-signout');
@@ -137,8 +208,7 @@ profile$('#profile-signout').addEventListener('click', async () => {
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     localStorage.setItem('authChanged', String(Date.now()));
-    csrfToken = '';
-    showProfile(null);
+    window.location.replace('index.html');
   } catch (error) {
     console.error('Could not sign out:', error);
     profile$('#profile-status').textContent = profileText('logoutError');

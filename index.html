@@ -29,6 +29,22 @@
   <div class="tools">
     <button id="login" type="button" class="ghost"></button>
     <button id="register" type="button" class="solid"></button>
+    <div id="guest-preferences" class="guest-preferences">
+      <label>
+        <span class="visually-hidden" data-i18n="language"></span>
+        <select id="guest-language" aria-label="Language">
+          <option value="es" data-i18n="spanish"></option>
+          <option value="en" data-i18n="english"></option>
+        </select>
+      </label>
+      <label>
+        <span class="visually-hidden" data-i18n="theme"></span>
+        <select id="guest-theme" aria-label="Theme">
+          <option value="dark" data-i18n="dark"></option>
+          <option value="light" data-i18n="light"></option>
+        </select>
+      </label>
+    </div>
     <div class="account-area" id="account-area" hidden>
       <button id="account-trigger" class="account-trigger" type="button" aria-expanded="false" aria-controls="account-menu">
         <img id="account-avatar" alt="" hidden>
@@ -44,7 +60,7 @@
             <span id="account-email"></span>
           </div>
         </div>
-        <a id="account-profile-link" class="account-menu-link" href="profile.html" target="_blank" rel="noopener" data-i18n="manage_profile"></a>
+        <a id="account-profile-link" class="account-menu-link" href="profile.html" data-i18n="manage_profile"></a>
         <button id="account-signout" class="account-menu-link" type="button" data-i18n="logout"></button>
       </section>
     </div>

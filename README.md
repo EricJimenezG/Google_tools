@@ -11,7 +11,7 @@ Academia web de herramientas de Google construida con HTML, CSS, JavaScript y PH
 ## Ejecutar localmente
 
 1. Inicia Apache y MySQL desde el panel de XAMPP.
-2. Abre phpMyAdmin, importa `database/schema.sql` y confirma que se creó la base `gtools_academy`.
+2. Si es una instalación nueva, abre phpMyAdmin e importa `database/schema.sql`. Si ya tienes la base de datos creada, selecciónala en phpMyAdmin, abre la pestaña **SQL** y ejecuta una sola vez el contenido de `database/migrations/001_user_preferences.sql`.
 3. En PowerShell, desde la raíz del proyecto, crea tu configuración local:
 
    ```powershell
@@ -41,4 +41,4 @@ El progreso actual registra los cursos que el usuario marca como completados. La
 
 Se almacenan el identificador de Google, correo, nombre, foto de perfil y fecha de finalización por curso. La pantalla de Google debe estar en modo de pruebas y autorizar las cuentas del equipo hasta que se decida publicar la aplicación. Para producción, usa HTTPS, una base de datos con un usuario de privilegios limitados y las URI de redireccionamiento del dominio desplegado.
 
-Al iniciar sesión, el avatar abre el menú de cuenta. **Administrar tu cuenta** abre `profile.html` en otra pestaña. El idioma y el tema se guardan en el almacenamiento local del navegador y se comparten entre pestañas del mismo sitio; no se guardan en MySQL ni viajan con la cuenta a otros dispositivos.
+Al iniciar sesión, el avatar abre el menú de cuenta. **Administrar tu cuenta** abre `profile.html` en otra pestaña. Cuando hay sesión, el idioma y el tema se guardan en MySQL para esa cuenta y se cargan al iniciar sesión desde otro dispositivo. Para visitantes sin sesión, las preferencias se guardan localmente en el navegador.

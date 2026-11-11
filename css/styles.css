@@ -25,6 +25,9 @@ section { padding: 40px 0; }
 .top nav a:hover { color: var(--accent); }
 .tools { display: flex; flex-wrap: wrap; gap: 8px; }
 .top .tools > button[hidden] { display: none; }
+.guest-preferences { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.guest-preferences[hidden] { display: none; }
+.guest-preferences select { max-width: 120px; padding: 8px 10px; }
 #q { flex: 1 1 180px; max-width: 260px; }
 @media (max-width: 640px) { .top nav { order: 5; width: 100%; } #q { max-width: none; } }
 .account-area { position: relative; }
@@ -86,6 +89,11 @@ input, select { background: var(--surface); border: 1px solid var(--line); borde
 dialog { max-width: min(520px, 92vw); padding: 24px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; }
 dialog::backdrop { background: #0009; }
 dialog h2 { margin-top: 0; }
+dialog.auth-notice { border: 2px solid #ea4335; }
+dialog.auth-notice #auth-title { color: #ff8a80; }
+dialog.auth-notice .auth-alert-message { padding: 14px; color: #ffb4ab; background: #5b2928; border-radius: 10px; font-weight: 700; }
+[data-theme="light"] dialog.auth-notice #auth-title { color: #b3261e; }
+[data-theme="light"] dialog.auth-notice .auth-alert-message { color: #8a1c17; background: #fde8e7; }
 dialog label { display: grid; gap: 4px; margin: 12px 0; }
 dialog .solid, dialog .ghost { margin: 6px 6px 0 0; }
 dialog#dlg-course { max-height: 90vh; overflow-y: auto; }
