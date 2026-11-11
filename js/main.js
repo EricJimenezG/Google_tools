@@ -14,7 +14,7 @@ const I18N = {
     lvl_all: 'Todos los niveles', lvl_basico: 'Básico', lvl_intermedio: 'Intermedio', lvl_avanzado: 'Avanzado', count: 'Resultados: {n}',
     empty: 'No hay cursos con esos filtros.', load_error: 'No se pudieron cargar los cursos. Abre el proyecto con un servidor local (mira el README).',
     road_sub: 'Sigue este orden para ir de lo básico a la automatización.', stage1: 'Fundamentos', stage2: 'Datos', stage3: 'Automatización e IA',
-    details: 'Detalles curso', goal: 'Objetivo', topics: 'Temas', done_btn: 'Marcar como completado', course_video: 'Video guía del curso',
+    details: 'Detalles curso', continue_course: 'Continuar curso', goal: 'Objetivo', topics: 'Temas', done_btn: 'Marcar como completado', course_video: 'Video guía del curso',
     course_videos: 'Videos del curso', quiz_title: 'Comprueba lo aprendido', quiz_check: 'Revisar respuesta',
     quiz_choose: 'Elige una respuesta antes de continuar.', quiz_correct: '¡Correcto!', quiz_incorrect: 'Aún no. La respuesta correcta es:',
     award_line: 'Reconocimiento de GTools Academy para {name} por completar “{course}” el {date}.', award_note: 'No es una certificación oficial.',
@@ -44,7 +44,7 @@ const I18N = {
     lvl_all: 'All levels', lvl_basico: 'Beginner', lvl_intermedio: 'Intermediate', lvl_avanzado: 'Advanced', count: 'Results: {n}',
     empty: 'No courses match those filters.', load_error: 'Courses could not be loaded. Open the project with a local server (see README).',
     road_sub: 'Follow this order to go from the basics to automation.', stage1: 'Foundations', stage2: 'Data', stage3: 'Automation and AI',
-    details: 'Course details', goal: 'Goal', topics: 'Topics', done_btn: 'Mark as completed', course_video: 'Course video guide',
+    details: 'Course details', continue_course: 'Continue course', goal: 'Goal', topics: 'Topics', done_btn: 'Mark as completed', course_video: 'Course video guide',
     course_videos: 'Course videos', quiz_title: 'Check what you learned', quiz_check: 'Check answer',
     quiz_choose: 'Choose an answer before continuing.', quiz_correct: 'Correct!', quiz_incorrect: 'Not quite. The correct answer is:',
     award_line: 'GTools Academy recognition for {name} for completing “{course}” on {date}.', award_note: 'Not an official certification.',
@@ -80,6 +80,7 @@ let user = null;
 let csrfToken = '';
 let authError = '';
 const done = {};
+const enrolled = new Set();
 
 const t = (k, v = {}) => (I18N[lang][k] ?? k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '');
 const pick = (pair) => pair[lang === 'es' ? 0 : 1];
@@ -120,9 +121,10 @@ function matches(c) {
 }
 
 function card(c) {
+  const courseAction = enrolled.has(c.id) ? t('continue_course') : t('details');
   const details = source === 'php'
-    ? `<a class="ghost" href="curso.php?id=${encodeURIComponent(c.id)}&amp;lang=${lang}">${t('details')}</a>`
-    : `<button class="ghost" data-open="${esc(c.id)}">${t('details')}</button>`;
+    ? `<a class="ghost" href="curso.php?id=${encodeURIComponent(c.id)}&amp;lang=${lang}">${courseAction}</a>`
+    : `<button class="ghost" data-open="${esc(c.id)}">${courseAction}</button>`;
   return `<article class="card" data-color="${esc(c.color)}">
     <span class="icon" aria-hidden="true">${esc(c.icon)}</span>
     <h3>${esc(pick(c.title))}${done[c.id] ? ' ✓' : ''}</h3>
@@ -209,44 +211,6 @@ function closeAccountMenu() {
   trigger.setAttribute('aria-expanded', 'false');
 }
 
-function youtubeEmbedUrl(value) {
-  const input = typeof value === 'string' ? value.trim() : '';
-  if (/^[\w-]{11}$/.test(input)) return `https://www.youtube-nocookie.com/embed/${input}`;
-
-  let url;
-  try {
-    url = new URL(input);
-  } catch {
-    return '';
-  }
-
-  const host = url.hostname.toLowerCase();
-  const isYouTube = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host);
-  const isShortUrl = ['youtu.be', 'www.youtu.be'].includes(host);
-  if (!isYouTube && !isShortUrl) return '';
-
-  const id = isShortUrl
-    ? url.pathname.split('/').filter(Boolean)[0]
-    : url.pathname === '/watch'
-      ? url.searchParams.get('v')
-      : url.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{11})(?:\/|$)/)?.[1];
-  return id && /^[\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : '';
-}
-
-function canvaEmbedUrl(value) {
-  let url;
-  try {
-    url = new URL(typeof value === 'string' ? value.trim() : '');
-  } catch {
-    return '';
-  }
-
-  if (!['canva.com', 'www.canva.com'].includes(url.hostname.toLowerCase()) ||
-      !/^\/design\/[\w-]+\/[\w-]+\/(?:watch|view)\/?$/.test(url.pathname)) return '';
-
-  return `https://www.canva.com${url.pathname.replace(/\/$/, '')}?embed`;
-}
-
 function openAuth(mode) {
   const dialog = $('#dlg-auth');
   dialog.classList.remove('auth-notice');
@@ -275,106 +239,25 @@ function openAuthNotice(messageKey) {
 function openCourse(id) {
   const c = courses.find((x) => x.id === id);
   if (!c) return;
-  const d = done[id];
   const langIdx = lang === 'es' ? 0 : 1;
-
-  const canvaVideos = Array.isArray(c.canvaVideos)
-    ? c.canvaVideos.map((item) => ({
-      title: Array.isArray(item.title) ? pick(item.title) : t('course_video'),
-      url: canvaEmbedUrl(item.url),
-    })).filter((item) => item.url)
-    : [];
-  const embedUrl = canvaVideos[0]?.url || canvaEmbedUrl(c.canva) || youtubeEmbedUrl(c.youtube);
-  const videoSelector = canvaVideos.length > 1
-    ? `<div class="course-video-list" role="group" aria-label="${t('course_videos')}">
-        ${canvaVideos.map((item, index) => `<button type="button" class="chip" data-video-url="${item.url}" aria-pressed="${index === 0}">${esc(item.title)}</button>`).join('')}
-      </div>`
+  const requirements = c.requirements?.[langIdx];
+  const page = source === 'php'
+    ? `<a class="solid" href="curso.php?id=${encodeURIComponent(id)}&amp;lang=${lang}">${t('details')}</a>`
     : '';
-  const videoPlayer = `
-    ${videoSelector}
-    <div class="course-video-wrapper">
-      ${embedUrl
-        ? `<iframe id="course-video-iframe" src="${embedUrl}" title="${esc(pick(c.title))} — ${t('course_video')}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
-        : `<div class="video-overlay-title">🎬 ${t('course_video')}</div>
-          <video controls poster="assets/video/poster_placeholder.jpg" playsinline>
-            <source src="${esc(c.video || '')}" type="video/mp4">
-            ${lang === 'es' ? 'Tu navegador no soporta la reproducción de video.' : 'Your browser does not support video playback.'}
-          </video>`}
-    </div>
-  `;
-
-  // Mapeo de Objetivos de Aprendizaje
-  const outcomesList = c.learning_outcomes && c.learning_outcomes[langIdx]
-    ? c.learning_outcomes[langIdx].map(o => `<li>✅ ${esc(o)}</li>`).join('')
-    : '';
-
-  // Mapeo del Recorrido / Módulos del Curso
-  const topicsList = pick(c.topics).map((x, index) => `
-    <div class="module-step">
-      <span class="step-num">${index + 1}</span>
-      <div class="step-content">${esc(x)}</div>
-    </div>
-  `).join('');
-  const quizList = Array.isArray(c.quiz) ? `
-    <section class="course-quiz">
-      <h3>🧠 ${t('quiz_title')}</h3>
-      ${c.quiz.map((item, index) => `
-        <article class="quiz-card" data-quiz-card data-answer="${item.answer}"
-          data-feedback="${esc(pick(item.feedback))}"
-          data-correct-label="${esc(pick(item.options[item.answer]))}">
-          <h4>${esc(pick(item.title))}</h4>
-          <p>${esc(pick(item.text))}</p>
-          <fieldset>
-            <legend>${esc(pick(item.question))}</legend>
-            ${item.options.map((option, optionIndex) => `
-              <label class="quiz-option">
-                <input type="radio" name="quiz-${esc(id)}-${index}" value="${optionIndex}">
-                ${esc(pick(option))}
-              </label>
-            `).join('')}
-          </fieldset>
-          <button type="button" class="ghost" data-quiz-check>${t('quiz_check')}</button>
-          <p class="quiz-feedback note" data-quiz-feedback role="status" aria-live="polite"></p>
-        </article>
-      `).join('')}
-    </section>
-  ` : '';
-
-  const page = source === 'php' ? `<p><a href="curso.php?id=${esc(id)}&amp;lang=${lang}">${t('open_page')}</a></p>` : '';
-  const pdfAward = d && source === 'php'
-    ? `<p><a class="solid" target="_blank" rel="noopener" href="reconocimiento.php?id=${esc(id)}&amp;name=${encodeURIComponent(user?.name ?? '')}&amp;date=${new Date(d).toLocaleDateString('en-CA')}&amp;lang=${lang}">${t('get_award')}</a></p>` : '';
 
   $('#course-body').innerHTML = `
     <div class="modal-header">
       <h2>${esc(c.icon)} ${esc(pick(c.title))}</h2>
       <span class="badge ${esc(c.level)}">${t('lvl_' + c.level)} • ${esc(c.hours)} hrs</span>
     </div>
-
-    ${videoPlayer}
-
     <div class="course-detail-section">
       <h3>📌 ${lang === 'es' ? 'Descripción e Introducción' : 'Description & Overview'}</h3>
       <p class="course-description">${esc(pick(c.desc))}</p>
-
       <p><strong>🎯 ${t('goal')}:</strong> ${esc(pick(c.goal))}</p>
-
-      ${c.requirements ? `<p><strong>📋 ${lang === 'es' ? 'Requisitos previos' : 'Prerequisites'}:</strong> ${esc(c.requirements[langIdx])}</p>` : ''}
-
-      ${outcomesList ? `
-        <h3>🎓 ${lang === 'es' ? 'Lo que aprenderás' : 'What you will learn'}</h3>
-        <ul class="outcomes-list">${outcomesList}</ul>
-      ` : ''}
-
-      <h3>🚀 ${lang === 'es' ? 'Recorrido del Curso (Módulos)' : 'Course Path (Modules)'}</h3>
-      <div class="modules-container">${topicsList}</div>
-      ${quizList}
+      ${requirements ? `<p><strong>📋 ${lang === 'es' ? 'Requisitos previos' : 'Prerequisites'}:</strong> ${esc(requirements)}</p>` : ''}
     </div>
-
-    ${page}
-    
     <div class="modal-actions">
-      ${d ? `<div class="award"><p>${esc(t('award_line', { name: user?.name ?? '', course: pick(c.title), date: fmt(d) }))}</p><small>${t('award_note')}</small>${pdfAward}</div>`
-          : `<button class="solid" id="finish" data-id="${esc(id)}">▶️ ${lang === 'es' ? 'Iniciar / Completar Recorrido' : 'Start / Complete Path'}</button>`}
+      ${page}
       <button class="ghost" id="course-close">${t('close')}</button>
     </div>
   `;
@@ -383,58 +266,10 @@ function openCourse(id) {
   if (!dlg.open) dlg.showModal();
 }
 
-document.addEventListener('click', async (e) => {
+document.addEventListener('click', (e) => {
   const open = e.target.closest('[data-open]');
   if (open) return openCourse(open.dataset.open);
-  const videoButton = e.target.closest('[data-video-url]');
-  if (videoButton) {
-    const frame = $('#course-video-iframe');
-    if (frame) frame.src = videoButton.dataset.videoUrl;
-    videoButton.parentElement.querySelectorAll('[data-video-url]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button === videoButton));
-    });
-  }
-  const quizButton = e.target.closest('[data-quiz-check]');
-  if (quizButton) {
-    const quiz = quizButton.closest('[data-quiz-card]');
-    const selected = quiz.querySelector('input[type="radio"]:checked');
-    const feedback = quiz.querySelector('[data-quiz-feedback]');
-    if (!selected) {
-      feedback.textContent = t('quiz_choose');
-      feedback.dataset.state = 'error';
-      return;
-    }
-    const correct = Number(selected.value) === Number(quiz.dataset.answer);
-    feedback.textContent = correct
-      ? `${t('quiz_correct')} ${quiz.dataset.feedback}`
-      : `${t('quiz_incorrect')} ${quiz.dataset.correctLabel}. ${quiz.dataset.feedback}`;
-    feedback.dataset.state = correct ? 'correct' : 'incorrect';
-  }
   if (e.target.id === 'course-close') $('#dlg-course').close();
-  if (e.target.id === 'finish') {
-    if (!user) { $('#dlg-course').close(); return openAuth('login'); }
-    const button = e.target;
-    button.disabled = true;
-    try {
-      const response = await fetch('api/progress.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-        body: JSON.stringify({ course_id: button.dataset.id, completed: true }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'progress_unavailable');
-      done[result.course_id] = result.completed_at;
-      openCourse(result.course_id);
-      render();
-    } catch (error) {
-      console.error('Could not save course progress:', error);
-      const notice = document.createElement('p');
-      notice.className = 'note';
-      notice.textContent = t('progress_error');
-      button.insertAdjacentElement('beforebegin', notice);
-      button.disabled = false;
-    }
-  }
 });
 
 $('#q').addEventListener('input', (e) => { fQuery = e.target.value; render(); if (fQuery) $('#cursos').scrollIntoView(); });
@@ -527,6 +362,17 @@ async function loadAuthState() {
     if (!progressResponse.ok) throw new Error(`Progress HTTP ${progressResponse.status}`);
     const progress = await progressResponse.json();
     Object.assign(done, progress.done);
+    const enrollmentResponse = await fetch('api/enrollment.php', { cache: 'no-store' });
+    if (!enrollmentResponse.ok) throw new Error(`Enrollment HTTP ${enrollmentResponse.status}`);
+    const enrollment = await enrollmentResponse.json();
+    if (!Array.isArray(enrollment.enrolled) || !enrollment.enrolled.every((courseId) => typeof courseId === 'string')) {
+      throw new Error('Invalid enrollment response');
+    }
+    enrolled.clear();
+    enrollment.enrolled.forEach((courseId) => enrolled.add(courseId));
+  } else {
+    Object.keys(done).forEach((courseId) => delete done[courseId]);
+    enrolled.clear();
   }
 }
 
@@ -558,6 +404,18 @@ window.addEventListener('storage', (event) => {
       .then(() => { renderAuth(); render(); })
       .catch((error) => console.error('Could not refresh account session:', error));
   }
+  if (event.key === 'enrollmentChanged') {
+    loadAuthState()
+      .then(() => { renderAuth(); render(); })
+      .catch((error) => console.error('Could not refresh course enrollments:', error));
+  }
+});
+
+window.addEventListener('pageshow', (event) => {
+  if (!event.persisted) return;
+  loadAuthState()
+    .then(() => { renderAuth(); render(); })
+    .catch((error) => console.error('Could not refresh course enrollments:', error));
 });
 
 // Formulario de contacto (necesita PHP: api/contact.php)

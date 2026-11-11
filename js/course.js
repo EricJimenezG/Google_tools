@@ -8,6 +8,43 @@ const moduleProgress = document.querySelector('.journey-progress');
 const progressBar = document.querySelector('[data-module-progress]');
 const previousButton = document.querySelector('[data-module-previous]');
 const nextButton = document.querySelector('[data-module-next]');
+const enrollmentSection = document.querySelector('[data-course-enrollment]');
+const enrollmentButton = enrollmentSection?.querySelector('[data-course-enroll]');
+
+if (enrollmentSection && enrollmentButton) {
+  const enrollmentStatus = enrollmentSection.querySelector('[data-enrollment-status]');
+  const labels = enrollmentButton.dataset;
+
+  enrollmentButton.addEventListener('click', async () => {
+    enrollmentButton.disabled = true;
+    enrollmentButton.textContent = labels.labelSaving;
+    enrollmentStatus.textContent = '';
+    try {
+      const sessionResponse = await fetch('api/auth.php?action=session', { cache: 'no-store' });
+      if (!sessionResponse.ok) throw new Error(`Session HTTP ${sessionResponse.status}`);
+      const session = await sessionResponse.json();
+      if (!session.user) {
+        window.location.assign(enrollmentSection.dataset.loginUrl);
+        return;
+      }
+
+      const response = await fetch('api/enrollment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrfToken },
+        body: JSON.stringify({ course_id: enrollmentSection.dataset.courseId }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+      localStorage.setItem('enrollmentChanged', String(Date.now()));
+      window.location.reload();
+    } catch (error) {
+      console.error('Could not enroll in course:', error);
+      enrollmentStatus.textContent = labels.labelError;
+      enrollmentButton.disabled = false;
+      enrollmentButton.textContent = labels.labelEnroll;
+    }
+  });
+}
 
 function selectModule(index) {
   const button = moduleButtons[index];

@@ -11,7 +11,7 @@ Academia web de herramientas de Google construida con HTML, CSS, JavaScript y PH
 ## Ejecutar localmente
 
 1. Inicia Apache y MySQL desde el panel de XAMPP.
-2. Si es una instalación nueva, abre phpMyAdmin e importa `database/schema.sql`. Si ya tienes la base de datos creada, selecciónala en phpMyAdmin, abre la pestaña **SQL** y ejecuta una sola vez el contenido de `database/migrations/001_user_preferences.sql`.
+2. Si es una instalación nueva, abre phpMyAdmin e importa `database/schema.sql`. Si ya tienes la base creada y ejecutaste la migración de preferencias, ejecuta una sola vez `database/migrations/002_course_enrollments.sql`. Si aún no actualizaste las preferencias, ejecuta primero `001_user_preferences.sql` y luego `002_course_enrollments.sql`, desde la pestaña **SQL** de phpMyAdmin.
 3. En PowerShell, desde la raíz del proyecto, crea tu configuración local:
 
    ```powershell
@@ -37,7 +37,7 @@ El inicio de sesión utiliza OAuth de Google en el servidor: el backend protege 
 
 El botón **Registrarse** crea el perfil local asociado a la cuenta de Google. **Iniciar sesión** solo permite cuentas ya registradas; si la cuenta no existe, el sitio pide registrarse primero.
 
-El progreso actual registra los cursos que el usuario marca como completados. Las cuentas se identifican por el identificador estable de Google y los avances se guardan en MySQL, por lo que se recuperan al iniciar sesión desde otro navegador. Esta primera etapa no guarda el módulo o video exacto en el que se quedó el usuario.
+Los detalles básicos de cada curso son públicos. Para ver videos, actividades y progreso, el usuario debe inscribirse con su cuenta de Google; si aún no inició sesión, la inscripción se crea al regresar del flujo de Google. Las inscripciones y los cursos completados se guardan por separado en MySQL; el acceso al contenido y el guardado de progreso requieren una inscripción. Los cursos que ya estaban completados se migran automáticamente como inscritos. Esta primera etapa no guarda el módulo o video exacto en el que se quedó el usuario.
 
 Se almacenan el identificador de Google, correo, nombre, foto de perfil y fecha de finalización por curso. La pantalla de Google debe estar en modo de pruebas y autorizar las cuentas del equipo hasta que se decida publicar la aplicación. Para producción, usa HTTPS, una base de datos con un usuario de privilegios limitados y las URI de redireccionamiento del dominio desplegado.
 

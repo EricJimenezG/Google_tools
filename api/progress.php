@@ -29,6 +29,15 @@ try {
     }
 
     $pdo = database();
+    if ($method === 'POST') {
+        $enrollment = $pdo->prepare(
+            'SELECT 1 FROM course_enrollments WHERE user_id = :user_id AND course_id = :course_id'
+        );
+        $enrollment->execute(['user_id' => $user['id'], 'course_id' => $courseId]);
+        if ($enrollment->fetchColumn() === false) {
+            json_response(403, ['error' => 'course_enrollment_required']);
+        }
+    }
     if ($method === 'GET') {
         $statement = $pdo->prepare(
             'SELECT course_id, completed_at FROM course_progress WHERE user_id = :user_id'

@@ -2,6 +2,8 @@
 // Página de un curso renderizada en el servidor: curso.php?id=forms&lang=es
 declare(strict_types=1);
 require __DIR__ . '/includes/data.php';
+require_once __DIR__ . '/includes/app.php';
+require_once __DIR__ . '/includes/db.php';
 
 function canva_embed_url(string $value): ?string
 {
@@ -51,6 +53,24 @@ $course = find_course(param('id'));
 if ($course === null) {
     http_response_code(404);
 }
+$user = null;
+$isEnrolled = false;
+start_app_session();
+header('Cache-Control: private, no-store');
+$user = authenticated_user();
+if ($course !== null && $user !== null) {
+    try {
+        $statement = database()->prepare(
+            'SELECT 1 FROM course_enrollments WHERE user_id = :user_id AND course_id = :course_id'
+        );
+        $statement->execute(['user_id' => $user['id'], 'course_id' => $course['id']]);
+        $isEnrolled = $statement->fetchColumn() !== false;
+    } catch (PDOException | RuntimeException $error) {
+        error_log('Could not check course enrollment: ' . $error->getMessage());
+        http_response_code(500);
+        exit('No se pudo verificar la inscripción al curso. Inténtalo más tarde.');
+    }
+}
 
 $ui = [
     'back' => ['Volver a los cursos', 'Back to courses'],
@@ -79,6 +99,11 @@ $ui = [
     'completed' => ['Curso completado', 'Course completed'],
     'saving' => ['Guardando progreso...', 'Saving progress...'],
     'progress_error' => ['No se pudo cargar o guardar el progreso. Inténtalo de nuevo.', 'Could not load or save progress. Please try again.'],
+    'enroll_heading' => ['Inscripción al curso', 'Course enrollment'],
+    'enroll_intro' => ['Regístrate para acceder a los videos, actividades y progreso del curso.', 'Enroll to access the course videos, activities, and progress.'],
+    'enroll_action' => ['Registrarme a curso', 'Enroll in course'],
+    'enroll_saving' => ['Registrando tu inscripción...', 'Enrolling you...'],
+    'enroll_error' => ['No se pudo registrar tu inscripción. Inténtalo de nuevo.', 'Could not enroll you. Please try again.'],
 ];
 $levels = ['basico' => ['Básico', 'Beginner'], 'intermedio' => ['Intermedio', 'Intermediate'], 'avanzado' => ['Avanzado', 'Advanced']];
 $audiences = ['maestros' => ['Maestros', 'Teachers'], 'alumnos' => ['Alumnos', 'Students'], 'general' => ['Público general', 'General public']];
@@ -176,6 +201,25 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       </div>
     </section>
 
+    <?php if (!$isEnrolled): ?>
+      <section class="course-enrollment card border-0 shadow-sm mb-4" data-course-enrollment
+        data-course-id="<?= h($course['id']) ?>"
+        data-login-url="api/auth.php?action=login&amp;mode=register&amp;course_id=<?= rawurlencode($course['id']) ?>&amp;enroll_course_id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>">
+        <div class="card-body p-4">
+          <h2 class="h4"><?= h($ui['enroll_heading'][$i]) ?></h2>
+          <p class="note"><?= h($ui['enroll_intro'][$i]) ?></p>
+          <p class="note" data-enrollment-status role="status" aria-live="polite"></p>
+          <?php if ($user !== null): ?>
+            <button type="button" class="btn btn-primary" data-course-enroll
+              data-label-enroll="<?= h($ui['enroll_action'][$i]) ?>"
+              data-label-saving="<?= h($ui['enroll_saving'][$i]) ?>"
+              data-label-error="<?= h($ui['enroll_error'][$i]) ?>"><?= h($ui['enroll_action'][$i]) ?></button>
+          <?php else: ?>
+            <a class="btn btn-primary" href="api/auth.php?action=login&amp;mode=register&amp;course_id=<?= rawurlencode($course['id']) ?>&amp;enroll_course_id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>"><?= h($ui['enroll_action'][$i]) ?></a>
+          <?php endif; ?>
+        </div>
+      </section>
+    <?php else: ?>
     <?php if ($videoModules): ?>
       <section class="course-journey card border-0 shadow-sm mb-4" aria-labelledby="course-videos-title">
         <div class="card-body p-4 p-lg-5">
@@ -278,6 +322,7 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
         </div>
       </section>
     <?php endif; ?>
+    <?php endif; ?>
 
     <section class="course-for card border-0 shadow-sm">
       <div class="card-body p-4">
@@ -286,6 +331,7 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
       </div>
     </section>
 
+    <?php if ($isEnrolled): ?>
     <section class="course-progress card border-0 shadow-sm mt-4" data-course-progress
       data-course-id="<?= h($course['id']) ?>"
       data-login-url="api/auth.php?action=login&amp;course_id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>">
@@ -300,6 +346,7 @@ if ($course !== null && !$videoModules && !empty($course['video'])) {
           data-label-error="<?= h($ui['progress_error'][$i]) ?>"><?= h($ui['saving'][$i]) ?></button>
       </div>
     </section>
+    <?php endif; ?>
   </article>
 <?php endif; ?>
 </main>
