@@ -1,14 +1,261 @@
 [
-  {"id": "gmail", "icon": "✉️", "category": "populares", "level": "basico", "hours": 3, "color": "red", "title": ["Gmail profesional", "Professional Gmail"], "desc": ["Etiquetas, filtros y atajos para dominar tu bandeja.", "Labels, filters and shortcuts to tame your inbox."], "goal": ["Gestionar tu correo en pocos minutos al día.", "Manage your email in minutes a day."], "topics": [["Etiquetas y filtros", "Atajos de teclado", "Plantillas y envío programado"], ["Labels and filters", "Keyboard shortcuts", "Templates and scheduled send"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "drive", "icon": "📁", "category": "populares", "level": "basico", "hours": 2, "color": "yellow", "title": ["Drive y colaboración", "Drive and collaboration"], "desc": ["Organiza archivos y comparte con los permisos correctos.", "Organize files and share with the right permissions."], "goal": ["Trabajar en equipo sin perder versiones.", "Work as a team without losing versions."], "topics": [["Carpetas y búsqueda", "Permisos y enlaces", "Historial de versiones"], ["Folders and search", "Permissions and links", "Version history"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "docs-slides", "icon": "📝", "category": "populares", "level": "basico", "hours": 3, "color": "blue", "title": ["Docs y Slides", "Docs and Slides"], "desc": ["Documentos y presentaciones claras, con comentarios en vivo.", "Clear documents and slides, with live comments."], "goal": ["Crear y presentar trabajos profesionales.", "Create and present professional work."], "topics": [["Estilos y plantillas", "Comentarios y sugerencias", "Presentar con notas"], ["Styles and templates", "Comments and suggestions", "Presenting with notes"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "classroom", "icon": "🏫", "category": "populares", "level": "basico", "hours": 3, "color": "green", "audience": ["maestros", "alumnos"], "title": ["Classroom: tu aula virtual", "Classroom: your virtual classroom"], "desc": ["Crea clases, asigna tareas y da seguimiento a tus alumnos.", "Create classes, assign work and track your students."], "goal": ["Llevar un curso completo en línea, de la tarea a la calificación.", "Run a full online course, from assignment to grade."], "topics": [["Crear clases e invitar alumnos", "Tareas, materiales y anuncios", "Calificaciones y retroalimentación"], ["Creating classes and inviting students", "Assignments, materials and announcements", "Grading and feedback"]]},
-  {"id": "calendar-meet", "icon": "📅", "category": "populares", "level": "basico", "hours": 2, "color": "blue", "title": ["Calendar y Meet", "Calendar and Meet"], "desc": ["Agenda, recordatorios y reuniones sin enredos.", "Scheduling, reminders and meetings made simple."], "goal": ["Organizar tu tiempo y dirigir clases o reuniones por videollamada.", "Organize your time and run classes or meetings by video call."], "topics": [["Eventos y recordatorios", "Invitaciones y calendarios compartidos", "Meet: reuniones y pantalla compartida"], ["Events and reminders", "Invitations and shared calendars", "Meet: calls and screen sharing"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "forms", "icon": "📋", "category": "populares", "level": "basico", "hours": 2, "color": "yellow", "title": ["Forms: encuestas con análisis", "Forms: surveys with analysis"], "desc": ["Crea formularios y cuestionarios y revisa las respuestas en Sheets.", "Build forms and quizzes and review the answers in Sheets."], "goal": ["Recoger datos y evaluar sin papel.", "Collect data and assess without paper."], "topics": [["Tipos de preguntas", "Cuestionarios con calificación automática", "Respuestas en Sheets"], ["Question types", "Self-grading quizzes", "Responses in Sheets"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "sheets", "icon": "📊", "category": "populares", "level": "intermedio", "hours": 6, "color": "green", "title": ["Sheets: fórmulas y tablas dinámicas", "Sheets: formulas and pivot tables"], "desc": ["De SUMA a QUERY: analiza datos reales paso a paso.", "From SUM to QUERY: analyze real data step by step."], "goal": ["Analizar datos con fórmulas y tablas dinámicas.", "Analyze data with formulas and pivot tables."], "topics": [["Fórmulas esenciales", "Tablas dinámicas", "QUERY y filtros"], ["Essential formulas", "Pivot tables", "QUERY and filters"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "looker-studio", "icon": "📈", "category": "poco-conocidas", "level": "intermedio", "hours": 5, "color": "blue", "title": ["Looker Studio: tableros de datos", "Looker Studio: data dashboards"], "desc": ["Conecta tus datos y crea dashboards que se actualizan solos.", "Connect your data and build self-updating dashboards."], "goal": ["Contar una historia con tus datos.", "Tell a story with your data."], "topics": [["Conectar fuentes", "Gráficos y filtros", "Compartir tableros"], ["Connecting sources", "Charts and filters", "Sharing dashboards"]], "audience": ["maestros", "general"]},
-  {"id": "apps-script", "icon": "⚙️", "category": "poco-conocidas", "level": "avanzado", "hours": 8, "color": "green", "title": ["Apps Script: automatiza con JavaScript", "Apps Script: automate with JavaScript"], "desc": ["Programa tareas en Sheets, Gmail y Calendar con JavaScript.", "Script tasks in Sheets, Gmail and Calendar with JavaScript."], "goal": ["Automatizar tareas repetitivas con código.", "Automate repetitive tasks with code."], "topics": [["Tu primer script", "Sheets y Gmail por código", "Disparadores y web apps"], ["Your first script", "Sheets and Gmail with code", "Triggers and web apps"]], "audience": ["maestros", "general"]},
-  {"id": "colab", "icon": "🧪", "category": "poco-conocidas", "level": "intermedio", "hours": 5, "color": "yellow", "title": ["Colab: Python en la nube", "Colab: Python in the cloud"], "desc": ["Escribe y ejecuta Python en el navegador, sin instalar nada.", "Write and run Python in the browser, no install needed."], "goal": ["Analizar datos con Python desde cualquier equipo.", "Analyze data with Python from any device."], "topics": [["Celdas y notebooks", "Pandas y gráficos", "Conectar con Drive"], ["Cells and notebooks", "Pandas and charts", "Connecting to Drive"]], "audience": ["alumnos", "general"]},
-  {"id": "notebooklm", "icon": "🎧", "category": "poco-conocidas", "level": "basico", "hours": 2, "color": "red", "title": ["NotebookLM: estudia con tus fuentes", "NotebookLM: study with your sources"], "desc": ["Sube tus apuntes y obtén resúmenes, preguntas y guías.", "Upload your notes and get summaries, answers and guides."], "goal": ["Estudiar más rápido con tus propios materiales.", "Study faster with your own materials."], "topics": [["Subir fuentes", "Preguntas con citas", "Resúmenes y guías de estudio"], ["Uploading sources", "Questions with citations", "Summaries and study guides"]], "audience": ["maestros", "alumnos", "general"]},
-  {"id": "scholar-trends", "icon": "🔎", "category": "poco-conocidas", "level": "basico", "hours": 2, "color": "red", "title": ["Scholar y Trends para investigar", "Scholar and Trends for research"], "desc": ["Encuentra artículos académicos y detecta tendencias de búsqueda.", "Find academic papers and spot search trends."], "goal": ["Investigar con fuentes confiables y datos reales.", "Research with reliable sources and real data."], "topics": [["Búsqueda en Scholar y citas", "Alertas y biblioteca personal", "Tendencias con Trends"], ["Searching Scholar and citations", "Alerts and personal library", "Spotting trends with Trends"]], "audience": ["maestros", "alumnos", "general"]}
+  {
+    "id": "gmail",
+    "icon": "✉️",
+    "category": "populares",
+    "level": "basico",
+    "hours": 3,
+    "color": "red",
+    "canvaVideos": [
+      {
+        "title": ["GMAIL V3", "GMAIL V3"],
+        "url": "https://www.canva.com/design/DAHaXCT3p4M/D8cGYor58ttAvwtlk-nEJQ/watch?embed"
+      },
+      {
+        "title": ["GMAIL V2", "GMAIL V2"],
+        "url": "https://www.canva.com/design/DAHZPuBStuk/OTN8XoMfZgFOZYJ2pZDmyA/watch?embed"
+      }
+    ],
+    "video": "assets/video/gmail_intro.mp4",
+    "title": ["Gmail profesional", "Professional Gmail"],
+    "desc": [
+      "Este curso te enseña a transformar tu bandeja de entrada de Gmail en un sistema ordenado y productivo. Aprenderás a clasificar correos con etiquetas (incluyendo subetiquetas y colores), a automatizar la organización con filtros y a trabajar mucho más rápido gracias a los atajos de teclado.",
+      "This course teaches you to transform your Gmail inbox into an organized, productive system using labels, filters, and keyboard shortcuts."
+    ],
+    "goal": [
+      "Alcanzar una bandeja de entrada bajo control combinando etiquetas, filtros y atajos de teclado para reducir el tiempo diario dedicado al correo.",
+      "Achieve an inbox under control by combining labels, filters, and keyboard shortcuts."
+    ],
+    "requirements": [
+      "Cuenta de Gmail activa (personal o de Google Workspace / Classroom) y conocimientos básicos de uso de correo electrónico.",
+      "Active Gmail account and basic knowledge of email usage."
+    ],
+    "learning_outcomes": [
+      ["Crear, anidar, colorear y gestionar etiquetas de forma profesional.", "Diseñar filtros que clasifiquen, archiven o destaquen correos automáticamente.", "Activar y dominar los atajos de teclado esenciales para navegar sin ratón.", "Alcanzar un flujo de trabajo de 'bandeja cero'."],
+      ["Create, nest, color, and manage labels professionally.", "Design filters to automatically classify, archive, or highlight emails.", "Master essential keyboard shortcuts.", "Achieve a 'zero inbox' workflow."]
+    ],
+    "topics": [
+      [
+        "Módulo 1: Introducción y configuración inicial (25 min) - Diferencia entre carpetas y etiquetas, interfaz y activación de atajos de teclado.",
+        "Módulo 2: Etiquetas: el corazón de la organización (45 min) - Crear subetiquetas, asignar colores, combinar etiquetas y búsquedas por 'label:'.",
+        "Módulo 3: Filtros: automatiza y limpia tu bandeja (50 min) - Anatomía de filtros (condiciones/acciones) y limpieza masiva de correos existentes.",
+        "Módulo 4: Atajos de teclado para trabajar como un profesional (40 min) - Dominio de navegación, redacción, archivo y respuesta rápida sin ratón.",
+        "Módulo 5: Puesta en práctica y sistema personal (20 min) - Diseño guiado de un sistema de 3-5 filtros prioritarios y rutina de 5 minutos diarios."
+      ],
+      [
+        "Module 1: Introduction and initial setup (25 min)",
+        "Module 2: Labels: the heart of organization (45 min)",
+        "Module 3: Filters: automate and clean your inbox (50 min)",
+        "Module 4: Keyboard shortcuts for professional work (40 min)",
+        "Module 5: Practical application and personal system (20 min)"
+      ]
+    ],
+    "quiz": [
+      {
+        "title": ["Etiquetas: organiza sin perder de vista", "Labels: organize without losing track"],
+        "text": [
+          "Las etiquetas funcionan como categorías para clasificar mensajes. Un mismo correo puede tener varias etiquetas, a diferencia de una carpeta tradicional.",
+          "Labels act as categories for messages. One email can have several labels, unlike a traditional folder."
+        ],
+        "question": ["¿Qué ventaja ofrecen las etiquetas frente a las carpetas?", "What is an advantage of labels over folders?"],
+        "options": [
+          ["Un correo puede tener varias etiquetas a la vez.", "An email can have several labels at once."],
+          ["Las etiquetas envían respuestas automáticas.", "Labels send automatic replies."],
+          ["Las etiquetas aumentan el espacio de almacenamiento.", "Labels increase storage space."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "Puedes clasificar el mismo mensaje en varios contextos sin duplicarlo.",
+          "You can classify the same message in multiple contexts without duplicating it."
+        ]
+      },
+      {
+        "title": ["Filtros: automatiza tareas repetidas", "Filters: automate repeated tasks"],
+        "text": [
+          "Un filtro revisa criterios como remitente, asunto o palabras clave y aplica acciones a los mensajes que coinciden.",
+          "A filter checks criteria such as sender, subject, or keywords and applies actions to matching messages."
+        ],
+        "question": ["Quieres que los mensajes de una persona lleven una etiqueta automáticamente. ¿Qué usarías?", "You want messages from a person to receive a label automatically. What would you use?"],
+        "options": [
+          ["Un filtro con el remitente como criterio y la etiqueta como acción.", "A filter with the sender as a condition and the label as an action."],
+          ["Una respuesta automática.", "An automatic reply."],
+          ["La papelera.", "The trash."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "Los filtros pueden aplicar etiquetas automáticamente cuando un mensaje cumple las condiciones definidas.",
+          "Filters can apply labels automatically when a message matches the conditions you set."
+        ]
+      },
+      {
+        "title": ["Atajos: navega con más rapidez", "Shortcuts: navigate faster"],
+        "text": [
+          "Gmail permite usar atajos de teclado para acelerar acciones frecuentes. Primero activa la opción de atajos en la configuración de Gmail.",
+          "Gmail supports keyboard shortcuts to speed up common actions. First enable shortcuts in Gmail settings."
+        ],
+        "question": ["¿Qué debes hacer antes de usar los atajos de teclado de Gmail?", "What should you do before using Gmail keyboard shortcuts?"],
+        "options": [
+          ["Activarlos en la configuración de Gmail.", "Enable them in Gmail settings."],
+          ["Instalar una extensión de navegador obligatoriamente.", "Install a browser extension."],
+          ["Crear una etiqueta llamada “Atajos”.", "Create a label named “Shortcuts”."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "La opción se activa en la configuración; después puedes practicar los atajos disponibles.",
+          "The option is enabled in settings; then you can practice the available shortcuts."
+        ]
+      }
+    ],
+    "audience": ["maestros", "alumnos", "general"]
+  },
+  {
+    "id": "drive",
+    "icon": "📁",
+    "category": "populares",
+    "level": "basico",
+    "hours": 2,
+    "color": "yellow",
+    "canvaVideos": [
+      {
+        "title": ["DRIVE V2", "DRIVE V2"],
+        "url": "https://www.canva.com/design/DAHaYOJXKb8/_V63FO2QXdqCCtXBKC2RVw/watch?embed"
+      },
+      {
+        "title": ["DRIVE V3", "DRIVE V3"],
+        "url": "https://www.canva.com/design/DAHaYHO18nw/LRi0Q8XHBJwsuj5hnwRF-g/watch?embed"
+      }
+    ],
+    "video": "assets/video/drive_intro.mp4",
+    "title": ["Drive y colaboración", "Drive and collaboration"],
+    "desc": [
+      "Este curso te enseña a dominar Google Drive como centro de organización y colaboración. Aprenderás a crear una estructura clara de carpetas, subir y organizar archivos, compartir con los permisos correctos (lector, comentarista, editor) y trabajar en equipo sin perder el control.",
+      "This course teaches you to master Google Drive as an organizational and collaboration hub."
+    ],
+    "goal": [
+      "Organizar tu unidad de Drive de forma lógica y dominar los 3 roles de permisos de colaboración con criterios claros de seguridad.",
+      "Organize your Drive logically and master collaboration permission roles."
+    ],
+    "requirements": [
+      "Cuenta de Google activa (personal o Workspace/Classroom) y conocimientos básicos de manejo de archivos.",
+      "Active Google account and basic file management skills."
+    ],
+    "learning_outcomes": [
+      ["Crear y organizar una estructura de carpetas lógica y fácil de mantener.", "Compartir archivos eligiendo el permiso adecuado (lector, comentarista, editor).", "Gestionar enlaces restringidos, de organización o públicos con seguridad.", "Usar 'Compartido conmigo', favoritos y búsqueda avanzada."],
+      ["Create and organize a logical folder structure.", "Share files with proper permissions (viewer, commenter, editor).", "Manage restricted or public links securely.", "Use 'Shared with me', starred, and advanced search."]
+    ],
+    "topics": [
+      [
+        "Módulo 1: Conocer Drive y organizar archivos (40 min) - Estructura de carpetas, subir/mover/recuperar archivos, colores y vistas.",
+        "Módulo 2: Compartir con los permisos correctos (45 min) - Roles (Lector, Comentarista, Editor), gestión de enlaces y seguridad en la nube.",
+        "Módulo 3: Colaborar, buscar y mantener el orden (35 min) - Historial de versiones, búsquedas con operadores y rutina para evitar el caos a largo plazo."
+      ],
+      [
+        "Module 1: Getting to know Drive and organizing files (40 min)",
+        "Module 2: Sharing with the right permissions (45 min)",
+        "Module 3: Collaborating, searching, and maintaining order (35 min)"
+      ]
+    ],
+    "quiz": [
+      {
+        "title": ["Organiza tus archivos", "Organize your files"],
+        "text": [
+          "Una estructura clara de carpetas facilita encontrar archivos y mantener el orden. Puedes crear carpetas por proyecto, materia o equipo, según cómo trabajes.",
+          "A clear folder structure makes files easier to find and keep organized. You can create folders by project, subject, or team based on how you work."
+        ],
+        "question": ["¿Qué ayuda a mantener una estructura de Drive fácil de encontrar?", "What helps keep a Drive structure easy to navigate?"],
+        "options": [
+          ["Crear carpetas con una organización lógica y consistente.", "Create folders with a logical and consistent structure."],
+          ["Guardar todos los archivos en una sola carpeta.", "Save every file in one folder."],
+          ["Cambiar el nombre de los archivos cada día.", "Rename files every day."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "Una estructura consistente facilita ubicar archivos y mantenerlos organizados con el tiempo.",
+          "A consistent structure makes files easier to find and keep organized over time."
+        ]
+      },
+      {
+        "title": ["Comparte con el permiso adecuado", "Choose the right sharing permission"],
+        "text": [
+          "Drive ofrece distintos permisos para compartir: lector para consultar, comentarista para dejar comentarios y editor para modificar el contenido.",
+          "Drive offers different sharing permissions: Viewer to read, Commenter to leave comments, and Editor to make changes."
+        ],
+        "question": ["Una persona solo debe leer un documento. ¿Qué permiso le das?", "Someone should only read a document. Which permission should you give?"],
+        "options": [
+          ["Lector.", "Viewer."],
+          ["Comentarista.", "Commenter."],
+          ["Editor.", "Editor."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "El permiso de lector permite consultar el archivo sin editarlo.",
+          "Viewer access lets someone read the file without editing it."
+        ]
+      },
+      {
+        "title": ["Colabora y encuentra versiones", "Collaborate and find versions"],
+        "text": [
+          "El historial de versiones ayuda a revisar cambios y recuperar una versión anterior. La búsqueda avanzada y los operadores ayudan a localizar archivos específicos.",
+          "Version history helps review changes and restore an earlier version. Advanced search and operators help locate specific files."
+        ],
+        "question": ["¿Qué función te ayuda a revisar cambios anteriores de un archivo?", "Which feature helps you review earlier changes to a file?"],
+        "options": [
+          ["El historial de versiones.", "Version history."],
+          ["Cambiar el color de la carpeta.", "Change the folder color."],
+          ["Mover el archivo a la papelera.", "Move the file to trash."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "El historial de versiones permite revisar versiones anteriores y recuperar cambios.",
+          "Version history lets you review previous versions and restore changes."
+        ]
+      }
+    ],
+    "audience": ["maestros", "alumnos", "general"]
+  },
+  {
+    "id": "sheets",
+    "icon": "📊",
+    "category": "populares",
+    "level": "intermedio",
+    "hours": 8,
+    "color": "green",
+    "video": "assets/video/sheets_intro.mp4",
+    "title": ["Sheets: fórmulas y tablas dinámicas", "Sheets: formulas and pivot tables"],
+    "desc": [
+      "Curso intermedio orientado a quienes ya conocen lo básico de Google Sheets y quieren pasar a analizar datos de verdad. Partimos de las funciones esenciales y avanzamos hasta QUERY, FILTER, tablas dinámicas y gráficos avanzados con conjuntos de datos reales.",
+      "Intermediate course for analyzing real data in Google Sheets using QUERY, FILTER, and Pivot Tables."
+    ],
+    "goal": [
+      "Transformar listas desordenadas en información clara, automatizando reportes y construyendo dashboards interactivos.",
+      "Transform raw lists into clear info using automated reports and interactive dashboards."
+    ],
+    "requirements": [
+      "Manejo básico de Google Sheets (crear hojas, formatear celdas, SUMA, PROMEDIO, filtrar y ordenar).",
+      "Basic handling of Google Sheets (create sheets, format cells, SUM, AVERAGE)."
+    ],
+    "learning_outcomes": [
+      ["Dominar funciones intermedias/avanzadas (SI anidado, BUSCARV/BUSCARX, SUMAR.SI.CONJUNTO).", "Usar FILTER, UNIQUE, SORT y ARRAYFORMULA para rangos dinámicos.", "Escribir consultas QUERY (el SQL de Sheets) para resumir datos.", "Crear y personalizar tablas dinámicas y dashboards."],
+      ["Master intermediate/advanced functions (Nested IF, VLOOKUP/XLOOKUP).", "Use FILTER, UNIQUE, SORT, and ARRAYFORMULA.", "Write QUERY statements in Sheets.", "Build Pivot Tables and dashboards."]
+    ],
+    "topics": [
+      [
+        "Bloque 1: Repaso rápido y funciones esenciales reforzadas (1 h) - Referencias mixtas, SI anidado, funciones de texto y fecha.",
+        "Bloque 2: Búsquedas y consolidación de datos (1,5 h) - BUSCARV, BUSCARX, ÍNDICE+COINCIDIR e IMPORTRANGE.",
+        "Bloque 3: Funciones de matriz y rangos dinámicos (1,5 h) - ARRAYFORMULA, FILTER, UNIQUE y SORT.",
+        "Bloque 4: QUERY: el poder de consultar datos (1,5 h) - Sintaxis SQL: SELECT, WHERE, GROUP BY, ORDER BY y agregaciones.",
+        "Bloque 5: Tablas dinámicas (Pivot Tables) (1,5 h) - Creación, agrupación por fechas/rangos y tableros de control.",
+        "Bloque 6: Visualización, dashboards y buenas prácticas (1 h) - Gráficos, formato condicional avanzado y proyecto guiado."
+      ],
+      [
+        "Block 1: Quick review and reinforced essential functions (1 h)",
+        "Block 2: Searches and data consolidation (1.5 h)",
+        "Block 3: Array functions and dynamic ranges (1.5 h)",
+        "Block 4: QUERY: the power of data querying (1.5 h)",
+        "Block 5: Pivot Tables (1.5 h)",
+        "Block 6: Visualization, dashboards, and best practices (1 h)"
+      ]
+    ],
+    "audience": ["maestros", "alumnos", "general"]
+  }
 ]
