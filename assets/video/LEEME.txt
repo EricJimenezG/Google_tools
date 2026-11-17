@@ -2,3 +2,5 @@ Coloca aquí tu video de bienvenida con fondo transparente:
 - bienvenida.webm  (VP9 con canal alfa; Chrome, Edge, Firefox)
 - bienvenida.mov   (HEVC con alfa; Safari y iPhone)
 Graba con fondo liso, quita el fondo (CapCut, DaVinci Resolve o Runway) y exporta. Ideal: 5 a 10 segundos y menos de 5 MB.
+
+# Se adjunto video de fondo generico para el principal - Eric
