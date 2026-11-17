@@ -620,6 +620,10 @@ a { color: var(--accent); }
   display: none;
 }
 
+.course-page [data-assessment-recognition-link][hidden] {
+  display: none !important;
+}
+
 .course-page .assessment-result-heading {
   margin: 0;
   color: var(--accent);

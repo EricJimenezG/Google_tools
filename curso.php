@@ -49,6 +49,7 @@ $ui = [
     'start_videos' => ['Ver videos del curso', 'Watch course videos'],
     'review_videos' => ['Revisar videos', 'Review videos'],
     'video_stage_intro' => ['Completa cada video para desbloquear la evaluación del curso.', 'Complete each video to unlock the course assessment.'],
+    'video_review_intro' => ['Ya completaste los videos. Puedes volver a reproducirlos aquí.', 'You completed the videos. You can play them again here.'],
     'video_done_action' => ['Marcar video como visto y continuar', 'Mark video as watched and continue'],
     'video_saving' => ['Guardando avance...', 'Saving progress...'],
     'video_progress_error' => ['No se pudo guardar el avance del video. Inténtalo de nuevo.', 'Could not save video progress. Please try again.'],
@@ -78,6 +79,7 @@ $ui = [
     'question_incorrect' => ['Incorrecta', 'Incorrect'],
     'assessment_retry' => ['Intentar de nuevo', 'Try again'],
     'assessment_completed' => ['Este curso ya está completado. Puedes revisar tus respuestas y el material cuando quieras.', 'This course is complete. You can review your answers and course material anytime.'],
+    'view_recognition' => ['Ver reconocimiento del curso', 'View course recognition'],
     'back_to_course' => ['Volver al curso', 'Back to course'],
     'video_step' => ['Video {current} de {total}', 'Video {current} of {total}'],
     'step' => ['Paso', 'Step'],
@@ -184,7 +186,7 @@ if ($hasAssessment) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script>try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('theme')) || 'dark'; } catch (e) {}</script>
-  <script src="js/course.js" defer></script>
+  <script src="js/course.js?v=<?= (int) filemtime(__DIR__ . '/js/course.js') ?>" defer></script>
 </head>
 <body>
 <header class="course-navbar">
@@ -223,7 +225,9 @@ if ($hasAssessment) {
         <div class="card-body">
           <a class="btn btn-outline-secondary btn-sm" href="curso.php?id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>"><?= h($ui['back_to_course'][$i]) ?></a>
           <h1 class="h2 mt-3 mb-0"><?= h($course['title'][$i]) ?></h1>
-          <p class="note mt-2 mb-0"><?= h($stage === 'videos' ? $ui['video_stage_intro'][$i] : $ui['assessment'][$i]) ?></p>
+          <p class="note mt-2 mb-0"><?= h($stage === 'videos'
+              ? ($videosCompleted ? $ui['video_review_intro'][$i] : $ui['video_stage_intro'][$i])
+              : $ui['assessment'][$i]) ?></p>
         </div>
       </header>
     <?php endif; ?>
@@ -306,9 +310,9 @@ if ($hasAssessment) {
           <h2 class="h3 mt-2"><?= h($ui['topics'][$i]) ?></h2>
           <div class="course-access-actions">
             <?php if ($videoModules): ?>
-              <a class="btn btn-primary" href="curso.php?id=<?= rawurlencode($course['id']) ?>&amp;stage=videos&amp;lang=<?= h($lang) ?>"><?= h(($isCompleted ? $ui['review_videos'] : $ui['start_videos'])[$i]) ?></a>
+              <a class="btn btn-primary" href="curso.php?id=<?= rawurlencode($course['id']) ?>&amp;stage=videos&amp;lang=<?= h($lang) ?>"><?= h(($videosCompleted ? $ui['review_videos'] : $ui['start_videos'])[$i]) ?></a>
               <?php
-                $videoStatus = $isCompleted
+                $videoStatus = $videosCompleted
                     ? $ui['videos_finished'][$i]
                     : str_replace(
                         ['{current}', '{total}'],
@@ -320,6 +324,9 @@ if ($hasAssessment) {
             <?php endif; ?>
             <?php if ($hasAssessment && $videosCompleted): ?>
               <a class="btn btn-outline-primary" href="curso.php?id=<?= rawurlencode($course['id']) ?>&amp;stage=assessment&amp;lang=<?= h($lang) ?>"><?= h(($assessmentResult ? $ui['review_assessment'] : $ui['start_assessment'])[$i]) ?></a>
+              <?php if ($assessmentResult): ?>
+                <a class="btn btn-primary" href="reconocimiento.php?id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>"><?= h($ui['view_recognition'][$i]) ?></a>
+              <?php endif; ?>
             <?php elseif ($hasAssessment): ?>
               <p class="course-access-status note mb-0"><?= h($ui['assessment_locked'][$i]) ?></p>
             <?php else: ?>
@@ -336,25 +343,23 @@ if ($hasAssessment) {
             <p class="note"><?= h($ui['videos_unavailable'][$i]) ?></p>
           <?php elseif ($videosCompleted): ?>
             <h3 class="h4 mt-4"><?= h($ui['videos_finished'][$i]) ?></h3>
-            <?php if ($isCompleted): ?>
-              <div class="course-video-review-list">
-                <?php foreach ($videoModules as $module): ?>
-                  <article class="course-video-review-item">
-                    <h4 class="h5"><?= h($module['title']) ?></h4>
-                    <div class="course-video-wrapper course-video-stage-player ratio ratio-16x9">
-                      <?php if ($module['type'] === 'embed'): ?>
-                        <iframe src="<?= h($module['url']) ?>" title="<?= h($module['title']) ?>" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
-                      <?php else: ?>
-                        <video controls playsinline>
-                          <source src="<?= h($module['url']) ?>" type="video/mp4">
-                          <?= h($ui['video_fallback'][$i]) ?>
-                        </video>
-                      <?php endif; ?>
-                    </div>
-                  </article>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
+            <div class="course-video-review-list">
+              <?php foreach ($videoModules as $module): ?>
+                <article class="course-video-review-item">
+                  <h4 class="h5"><?= h($module['title']) ?></h4>
+                  <div class="course-video-wrapper course-video-stage-player ratio ratio-16x9">
+                    <?php if ($module['type'] === 'embed'): ?>
+                      <iframe src="<?= h($module['url']) ?>" title="<?= h($module['title']) ?>" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
+                    <?php else: ?>
+                      <video controls playsinline>
+                        <source src="<?= h($module['url']) ?>" type="video/mp4">
+                        <?= h($ui['video_fallback'][$i]) ?>
+                      </video>
+                    <?php endif; ?>
+                  </div>
+                </article>
+              <?php endforeach; ?>
+            </div>
             <?php if ($hasAssessment): ?>
               <a class="btn btn-primary mt-2" href="curso.php?id=<?= rawurlencode($course['id']) ?>&amp;stage=assessment&amp;lang=<?= h($lang) ?>"><?= h(($assessmentResult ? $ui['review_assessment'] : $ui['start_assessment'])[$i]) ?></a>
             <?php endif; ?>
@@ -410,6 +415,7 @@ if ($hasAssessment) {
         data-course-assessment
         data-course-id="<?= h($course['id']) ?>"
         data-lang="<?= h($lang) ?>"
+        data-recognition-url="reconocimiento.php?id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>"
         data-label-progress="<?= h($ui['assessment_progress'][$i]) ?>"
         data-label-weight="<?= h($ui['question_weight'][$i]) ?>"
         data-label-next="<?= h($ui['next_question'][$i]) ?>"
@@ -477,6 +483,9 @@ if ($hasAssessment) {
             </form>
           </div>
           <div class="assessment-result" data-assessment-result hidden></div>
+          <a class="btn btn-primary" data-assessment-recognition-link
+            href="reconocimiento.php?id=<?= rawurlencode($course['id']) ?>&amp;lang=<?= h($lang) ?>"
+            <?= $assessmentResult ? '' : 'hidden' ?>><?= h($ui['view_recognition'][$i]) ?></a>
           <?php if ($assessmentResult): ?>
             <?php
               $assessmentResultJson = json_encode(

@@ -1,24 +1,68 @@
 <?php
-// Reconocimiento imprimible (NO es una certificación oficial).
-// Uso: reconocimiento.php?id=forms&name=Ana&date=2026-10-20&lang=es
+// Reconocimiento imprimible disponible para cursos aprobados (no oficial).
 declare(strict_types=1);
 require __DIR__ . '/includes/data.php';
+require_once __DIR__ . '/includes/app.php';
+require_once __DIR__ . '/includes/db.php';
 
 $lang = current_lang();
 $i = $lang === 'en' ? 1 : 0;
+$messages = [
+    'login' => ['Inicia sesión para ver tu reconocimiento.', 'Sign in to view your recognition.'],
+    'not_completed' => ['Debes aprobar la evaluación para obtener el reconocimiento.', 'You must pass the assessment to receive recognition.'],
+    'unavailable' => ['No se pudo verificar el reconocimiento. Inténtalo más tarde.', 'Could not verify the recognition. Please try again later.'],
+];
+$user = null;
+start_app_session();
+$user = authenticated_user();
+if ($user === null) {
+    http_response_code(401);
+    exit($messages['login'][$i]);
+}
+
 $course = find_course(param('id'));
 if ($course === null) {
     http_response_code(404);
     exit('Curso no encontrado / Course not found');
 }
 
-// Nombre de hasta 60 caracteres (con /u no depende de mbstring)
-preg_match('/^.{0,60}/su', trim(param('name')), $m);
+if (!course_has_assessment($course)) {
+    http_response_code(403);
+    exit($messages['not_completed'][$i]);
+}
+
+try {
+    $pdo = database();
+    $statement = $pdo->prepare(
+        'SELECT ar.passed_at
+         FROM course_assessment_results ar
+         INNER JOIN course_progress cp
+           ON cp.user_id = ar.user_id AND cp.course_id = ar.course_id
+         WHERE ar.user_id = :user_id AND ar.course_id = :course_id'
+    );
+    $statement->execute(['user_id' => $user['id'], 'course_id' => $course['id']]);
+    $passedAt = $statement->fetchColumn();
+    if (!is_string($passedAt)) {
+        http_response_code(403);
+        exit($messages['not_completed'][$i]);
+    }
+} catch (PDOException | RuntimeException $error) {
+    error_log('Could not verify course recognition: ' . $error->getMessage());
+    http_response_code(500);
+    exit($messages['unavailable'][$i]);
+}
+
+preg_match('/^.{0,60}/su', trim((string) $user['display_name']), $m);
 $name = $m[0] ?? '';
 if ($name === '') {
     $name = $i ? 'Student' : 'Estudiante';
 }
-$date = DateTime::createFromFormat('Y-m-d', param('date')) ?: new DateTime();
+$date = DateTime::createFromFormat('!Y-m-d H:i:s', $passedAt, new DateTimeZone('UTC'));
+if (!$date) {
+    error_log('Course recognition has an invalid completion date.');
+    http_response_code(500);
+    exit($messages['unavailable'][$i]);
+}
 $dateText = $i ? $date->format('F j, Y') : $date->format('d/m/Y');
 ?>
 <!DOCTYPE html>

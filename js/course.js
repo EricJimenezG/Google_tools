@@ -139,6 +139,7 @@ if (assessmentSection) {
   const nextButton = assessmentSection.querySelector('[data-assessment-next]');
   const submitButton = assessmentSection.querySelector('[data-assessment-submit]');
   const resultElement = assessmentSection.querySelector('[data-assessment-result]');
+  const recognitionLink = assessmentSection.querySelector('[data-assessment-recognition-link]');
   const labels = assessmentSection.dataset;
   let currentQuestion = 0;
   let submitting = false;
@@ -244,6 +245,7 @@ if (assessmentSection) {
       resultElement.append(retryButton);
     }
 
+    recognitionLink.hidden = !result.passed;
     formArea.hidden = true;
     resultElement.hidden = false;
   }
