@@ -256,6 +256,62 @@
         "Block 6: Visualization, dashboards, and best practices (1 h)"
       ]
     ],
+    "quiz": [
+      {
+        "title": ["Búsqueda de datos", "Lookup data"],
+        "text": [
+          "Las funciones de búsqueda permiten localizar un valor y devolver un dato relacionado. BUSCARX ofrece rangos de búsqueda y retorno independientes.",
+          "Lookup functions find a value and return related data. XLOOKUP allows independent lookup and return ranges."
+        ],
+        "question": ["¿Qué función permite definir por separado el rango de búsqueda y el rango de resultados?", "Which function lets you define the lookup range and the result range separately?"],
+        "options": [
+          ["BUSCARX (XLOOKUP).", "XLOOKUP."],
+          ["SUMA (SUM).", "SUM."],
+          ["CONTAR (COUNT).", "COUNT."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "BUSCARX separa el rango donde busca del rango del que devuelve el resultado.",
+          "XLOOKUP separates the range it searches from the range it returns a result from."
+        ]
+      },
+      {
+        "title": ["Consultas con QUERY", "Queries with QUERY"],
+        "text": [
+          "QUERY permite seleccionar, filtrar y resumir datos con cláusulas como SELECT, WHERE y GROUP BY.",
+          "QUERY selects, filters, and summarizes data with clauses such as SELECT, WHERE, and GROUP BY."
+        ],
+        "question": ["¿Qué cláusula de QUERY agrupa filas que comparten una categoría?", "Which QUERY clause groups rows that share a category?"],
+        "options": [
+          ["GROUP BY.", "GROUP BY."],
+          ["FORMAT.", "FORMAT."],
+          ["FREEZE.", "FREEZE."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "GROUP BY agrupa filas por valores compartidos para poder resumirlas.",
+          "GROUP BY groups rows by shared values so they can be summarized."
+        ]
+      },
+      {
+        "title": ["Análisis con tablas dinámicas", "Analyze with pivot tables"],
+        "text": [
+          "Las tablas dinámicas reorganizan y resumen datos para comparar categorías, agrupar fechas y obtener totales sin alterar la fuente.",
+          "Pivot tables reorganize and summarize data to compare categories, group dates, and calculate totals without changing the source."
+        ],
+        "question": ["¿Cuál es un uso principal de una tabla dinámica?", "What is a primary use of a pivot table?"],
+        "options": [
+          ["Resumir y comparar datos por categorías.", "Summarize and compare data by category."],
+          ["Enviar correos automáticamente.", "Send emails automatically."],
+          ["Cambiar permisos de archivos.", "Change file permissions."]
+        ],
+        "answer": 0,
+        "feedback": [
+          "Una tabla dinámica permite reorganizar y resumir datos para identificar patrones.",
+          "A pivot table lets you reorganize and summarize data to identify patterns."
+        ]
+      }
+    ],
     "audience": ["maestros", "alumnos", "general"]
   }
 ]

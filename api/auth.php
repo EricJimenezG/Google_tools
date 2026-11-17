@@ -19,7 +19,7 @@ function redirect_after_auth(string $result): void
             exit;
         }
     } else {
-        unset($_SESSION['auth_return_course'], $_SESSION['auth_return_lang'], $_SESSION['oauth_mode']);
+        unset($_SESSION['auth_return_course'], $_SESSION['auth_return_lang'], $_SESSION['auth_enroll_course'], $_SESSION['oauth_mode']);
     }
     header('Location: ../index.html?auth=' . rawurlencode($result), true, 303);
     exit;
@@ -127,6 +127,13 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     } else {
         unset($_SESSION['auth_return_course'], $_SESSION['auth_return_lang']);
     }
+    $enrollCourseId = $_GET['enroll_course_id'] ?? '';
+    if (is_string($enrollCourseId) && $enrollCourseId !== '' && $enrollCourseId === $courseId &&
+        find_course($enrollCourseId) !== null) {
+        $_SESSION['auth_enroll_course'] = $enrollCourseId;
+    } else {
+        unset($_SESSION['auth_enroll_course']);
+    }
 
     $authorizationUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
         'client_id' => $google['client_id'],
@@ -147,7 +154,8 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $expectedState = $_SESSION['oauth_state'] ?? '';
     $verifier = $_SESSION['oauth_code_verifier'] ?? '';
     $mode = $_SESSION['oauth_mode'] ?? 'login';
-    unset($_SESSION['oauth_state'], $_SESSION['oauth_code_verifier'], $_SESSION['oauth_mode']);
+    $enrollCourseId = $_SESSION['auth_enroll_course'] ?? '';
+    unset($_SESSION['oauth_state'], $_SESSION['oauth_code_verifier'], $_SESSION['oauth_mode'], $_SESSION['auth_enroll_course']);
 
     if (!is_string($state) || !is_string($expectedState) || $expectedState === '' || !hash_equals($expectedState, $state)) {
         redirect_after_auth('error');
@@ -229,6 +237,15 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $userId = $statement->fetchColumn();
         if ($userId === false) {
             throw new RuntimeException('No se pudo recuperar el usuario.');
+        }
+
+        if (is_string($enrollCourseId) && $enrollCourseId !== '' && find_course($enrollCourseId) !== null) {
+            $enrollment = $pdo->prepare(
+                'INSERT INTO course_enrollments (user_id, course_id)
+                 VALUES (:user_id, :course_id)
+                 ON DUPLICATE KEY UPDATE enrolled_at = course_enrollments.enrolled_at'
+            );
+            $enrollment->execute(['user_id' => $userId, 'course_id' => $enrollCourseId]);
         }
 
         session_regenerate_id(true);
