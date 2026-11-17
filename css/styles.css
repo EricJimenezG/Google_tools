@@ -236,6 +236,85 @@ a { color: var(--accent); }
   align-items: center;
 }
 
+.course-page .course-access,
+.course-page .course-stage-intro {
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 70%),
+    var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.course-page .course-access .card-body,
+.course-page .course-stage-intro .card-body {
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.course-page .course-access {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.course-page .course-access-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.course-page .course-access-status {
+  flex-basis: 100%;
+}
+
+.course-page .course-access .btn {
+  min-width: 220px;
+}
+
+.course-page .course-stage-intro {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.course-page .course-video-stage {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.course-page .course-video-stage .card-body {
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.course-page .course-video-stage-player {
+  width: 100%;
+  margin: 1.25rem 0;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.course-page .course-video-stage-player iframe,
+.course-page .course-video-stage-player video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+}
+
+.course-page .course-video-stage [data-video-progress-status]:empty {
+  display: none;
+}
+
+.course-page .course-assessment-stage {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
 .course-page h1,
 .course-page h2,
 .course-page h3,
@@ -492,6 +571,143 @@ a { color: var(--accent); }
   color: var(--red);
 }
 
+.course-page .assessment-counter {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.course-page .assessment-question-meta,
+.course-page .assessment-review-heading,
+.course-page .assessment-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.course-page .assessment-weight {
+  padding: 0.4rem 0.7rem;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.course-page .assessment-context {
+  margin: 1rem 0;
+  color: var(--muted);
+}
+
+.course-page .assessment-status:not(:empty) {
+  margin-top: 1rem;
+  color: var(--red);
+}
+
+.course-page .assessment-controls {
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.course-page .assessment-result {
+  display: grid;
+  gap: 1rem;
+}
+
+.course-page .assessment-result[hidden] {
+  display: none;
+}
+
+.course-page .assessment-result-heading {
+  margin: 0;
+  color: var(--accent);
+}
+
+.course-page .assessment-score {
+  width: fit-content;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.course-page .assessment-required,
+.course-page .assessment-completed-note {
+  margin: 0;
+}
+
+.course-page .assessment-review-title {
+  margin: 0.5rem 0 0;
+}
+
+.course-page .assessment-review-item {
+  padding: 1rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line) !important;
+  border-radius: 12px;
+}
+
+.course-page .assessment-review-heading {
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.course-page .assessment-review-heading h5 {
+  color: var(--ink);
+}
+
+.course-page .assessment-answer-status {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.course-page .assessment-answer-status.is-correct {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, var(--surface));
+}
+
+.course-page .assessment-answer-status.is-incorrect {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, var(--surface));
+}
+
+.course-page .assessment-review-question {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.course-page .assessment-review-answer {
+  margin-bottom: 0.35rem;
+}
+
+.course-page .assessment-review-feedback {
+  margin: 0.75rem 0 0;
+}
+
+.course-page .course-video-review-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.course-page .course-video-review-item h4 {
+  margin-bottom: 0.75rem;
+}
+
+.course-page [data-assessment-question][hidden],
+.course-page [data-assessment-form][hidden] {
+  display: none !important;
+}
+
 .course-page .course-for .meta {
   padding-top: 0;
 }
@@ -501,6 +717,12 @@ a { color: var(--accent); }
     padding: 1rem 0 0;
     border-top: 1px solid var(--line);
     border-left: 0;
+  }
+
+  .course-page .assessment-question-meta,
+  .course-page .assessment-review-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

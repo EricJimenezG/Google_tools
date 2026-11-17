@@ -29,7 +29,8 @@ try {
     if (!is_string($courseId) || !preg_match('/^[a-z0-9-]{1,100}$/', $courseId)) {
         json_response(422, ['error' => 'invalid_course_id']);
     }
-    if (find_course($courseId) === null) {
+    $course = find_course($courseId);
+    if ($course === null) {
         json_response(404, ['error' => 'course_not_found']);
     }
 
@@ -46,14 +47,27 @@ try {
             json_response(404, ['error' => 'enrollment_not_found']);
         }
 
+        $progressTable = course_has_assessment($course) ? 'course_assessment_results' : 'course_progress';
         $statement = $pdo->prepare(
-            'SELECT 1 FROM course_progress WHERE user_id = :user_id AND course_id = :course_id'
+            'SELECT 1 FROM ' . $progressTable . ' WHERE user_id = :user_id AND course_id = :course_id'
         );
         $statement->execute(['user_id' => $user['id'], 'course_id' => $courseId]);
         if ($statement->fetchColumn() !== false) {
             $pdo->rollBack();
             json_response(409, ['error' => 'course_already_completed']);
         }
+
+        if (course_has_assessment($course)) {
+            $statement = $pdo->prepare(
+                'DELETE FROM course_progress WHERE user_id = :user_id AND course_id = :course_id'
+            );
+            $statement->execute(['user_id' => $user['id'], 'course_id' => $courseId]);
+        }
+
+        $statement = $pdo->prepare(
+            'DELETE FROM course_video_progress WHERE user_id = :user_id AND course_id = :course_id'
+        );
+        $statement->execute(['user_id' => $user['id'], 'course_id' => $courseId]);
 
         $statement = $pdo->prepare(
             'DELETE FROM course_enrollments WHERE user_id = :user_id AND course_id = :course_id'
