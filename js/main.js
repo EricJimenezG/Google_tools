@@ -11,10 +11,12 @@ const I18N = {
     language: 'Idioma', spanish: 'Español', english: 'Inglés', theme: 'Tema', dark: 'Oscuro', light: 'Claro',
     manage_profile: 'Administrar tu cuenta', hero_sub: 'Pensado para maestros y alumnos: aprende las herramientas de Google, incluso las que nadie te enseñó.',
     cta: 'Ver cursos', video_ph: 'Aquí va tu video de bienvenida', cat_all: 'Todos', cat_pop: 'Populares', cat_rare: 'Poco conocidas',
+    completed_filter: 'Completados',
+    search_no_results: 'No se encontraron cursos con ese nombre.',
     lvl_all: 'Todos los niveles', lvl_basico: 'Básico', lvl_intermedio: 'Intermedio', lvl_avanzado: 'Avanzado', count: 'Resultados: {n}',
     empty: 'No hay cursos con esos filtros.', load_error: 'No se pudieron cargar los cursos. Abre el proyecto con un servidor local (mira el README).',
     road_sub: 'Sigue este orden para ir de lo básico a la automatización.', stage1: 'Fundamentos', stage2: 'Datos', stage3: 'Automatización e IA',
-    details: 'Detalles curso', continue_course: 'Continuar curso', goal: 'Objetivo', topics: 'Temas', done_btn: 'Marcar como completado', course_video: 'Video guía del curso',
+    details: 'Detalles curso', continue_course: 'Continuar curso', review_course: 'Revisar curso', goal: 'Objetivo', topics: 'Temas', done_btn: 'Marcar como completado', course_video: 'Video guía del curso',
     course_videos: 'Videos del curso', quiz_title: 'Comprueba lo aprendido', quiz_check: 'Revisar respuesta',
     quiz_choose: 'Elige una respuesta antes de continuar.', quiz_correct: '¡Correcto!', quiz_incorrect: 'Aún no. La respuesta correcta es:',
     award_line: 'Reconocimiento de GTools Academy para {name} por completar “{course}” el {date}.', award_note: 'No es una certificación oficial.',
@@ -41,10 +43,12 @@ const I18N = {
     language: 'Language', spanish: 'Spanish', english: 'English', theme: 'Theme', dark: 'Dark', light: 'Light',
     manage_profile: 'Manage your account', hero_sub: 'Made for teachers and students: learn Google tools, even the ones nobody taught you.',
     cta: 'Browse courses', video_ph: 'Your welcome video goes here', cat_all: 'All', cat_pop: 'Popular', cat_rare: 'Lesser-known',
+    completed_filter: 'Completed',
+    search_no_results: 'No courses found with that name.',
     lvl_all: 'All levels', lvl_basico: 'Beginner', lvl_intermedio: 'Intermediate', lvl_avanzado: 'Advanced', count: 'Results: {n}',
     empty: 'No courses match those filters.', load_error: 'Courses could not be loaded. Open the project with a local server (see README).',
     road_sub: 'Follow this order to go from the basics to automation.', stage1: 'Foundations', stage2: 'Data', stage3: 'Automation and AI',
-    details: 'Course details', continue_course: 'Continue course', goal: 'Goal', topics: 'Topics', done_btn: 'Mark as completed', course_video: 'Course video guide',
+    details: 'Course details', continue_course: 'Continue course', review_course: 'Review course', goal: 'Goal', topics: 'Topics', done_btn: 'Mark as completed', course_video: 'Course video guide',
     course_videos: 'Course videos', quiz_title: 'Check what you learned', quiz_check: 'Check answer',
     quiz_choose: 'Choose an answer before continuing.', quiz_correct: 'Correct!', quiz_incorrect: 'Not quite. The correct answer is:',
     award_line: 'GTools Academy recognition for {name} for completing “{course}” on {date}.', award_note: 'Not an official certification.',
@@ -73,7 +77,8 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-let courses = [], failed = false, fCat = 'all', fLevel = 'all', fAud = 'all', fQuery = '';
+let courses = [], failed = false, fCat = 'all', fLevel = 'all', fAud = 'all', fQuery = '', fCompleted = false;
+let activeSearchSuggestion = -1;
 let lang = load('lang', navigator.language?.startsWith('en') ? 'en' : 'es');
 let theme = load('theme', 'dark');
 let user = null;
@@ -112,16 +117,22 @@ function applyI18n() {
   $('#source').textContent = source ? `${t('src')}: ${source === 'php' ? 'PHP' : 'JSON'}` : '';
   $('#contact-form button').disabled = source !== 'php';
   $('#form-status').textContent = source === 'php' ? '' : t('form_nophp');
-  applyTheme(); renderAuth(); renderAuthStatus(); render();
+  applyTheme(); renderAuth(); renderAuthStatus(); render(); renderSearchSuggestions();
 }
 
 function matches(c) {
   const text = norm([pick(c.title), pick(c.desc), ...pick(c.topics)].join(' '));
-  return (fCat === 'all' || c.category === fCat) && (fLevel === 'all' || c.level === fLevel) && (fAud === 'all' || c.audience.includes(fAud)) && text.includes(norm(fQuery));
+  return (fCat === 'all' || c.category === fCat) &&
+    (fLevel === 'all' || c.level === fLevel) &&
+    (fAud === 'all' || c.audience.includes(fAud)) &&
+    (!fCompleted || Boolean(done[c.id])) &&
+    text.includes(norm(fQuery));
 }
 
 function card(c) {
-  const courseAction = enrolled.has(c.id) ? t('continue_course') : t('details');
+  const courseAction = done[c.id]
+    ? t('review_course')
+    : enrolled.has(c.id) ? t('continue_course') : t('details');
   const details = source === 'php'
     ? `<a class="ghost" href="curso.php?id=${encodeURIComponent(c.id)}&amp;lang=${lang}">${courseAction}</a>`
     : `<button class="ghost" data-open="${esc(c.id)}">${courseAction}</button>`;
@@ -135,6 +146,61 @@ function card(c) {
       ${details}
     </div>
   </article>`;
+}
+
+function closeSearchSuggestions() {
+  const searchInput = $('#q');
+  const suggestions = $('#search-suggestions');
+  activeSearchSuggestion = -1;
+  suggestions.hidden = true;
+  searchInput.setAttribute('aria-expanded', 'false');
+  searchInput.removeAttribute('aria-activedescendant');
+}
+
+function renderSearchSuggestions() {
+  const searchInput = $('#q');
+  const suggestions = $('#search-suggestions');
+  const query = norm(searchInput.value.trim());
+  activeSearchSuggestion = -1;
+  searchInput.removeAttribute('aria-activedescendant');
+
+  if (!query) {
+    closeSearchSuggestions();
+    return;
+  }
+
+  const matchesByName = courses
+    .filter((course) => norm(pick(course.title)).includes(query));
+
+  if (!matchesByName.length) {
+    suggestions.innerHTML = `<div class="search-empty" role="option" aria-disabled="true">${esc(t('search_no_results'))}</div>`;
+  } else {
+    suggestions.innerHTML = matchesByName.map((course, index) => {
+      const optionId = `search-option-${index}`;
+      const title = esc(pick(course.title));
+      return source === 'php'
+        ? `<a id="${optionId}" class="search-suggestion" role="option" aria-selected="false" href="curso.php?id=${encodeURIComponent(course.id)}&amp;lang=${lang}">${title}</a>`
+        : `<button id="${optionId}" class="search-suggestion" type="button" role="option" aria-selected="false" data-open="${esc(course.id)}">${title}</button>`;
+    }).join('');
+  }
+
+  suggestions.hidden = false;
+  searchInput.setAttribute('aria-expanded', 'true');
+}
+
+function setActiveSearchSuggestion(index) {
+  const searchInput = $('#q');
+  const options = [...$('#search-suggestions').querySelectorAll('[role="option"]:not([aria-disabled="true"])')];
+  if (!options.length) return;
+
+  activeSearchSuggestion = (index + options.length) % options.length;
+  options.forEach((option, optionIndex) => {
+    const active = optionIndex === activeSearchSuggestion;
+    option.setAttribute('aria-selected', String(active));
+    option.classList.toggle('is-active', active);
+  });
+  searchInput.setAttribute('aria-activedescendant', options[activeSearchSuggestion].id);
+  options[activeSearchSuggestion].scrollIntoView({ block: 'nearest' });
 }
 
 function renderRoad() {
@@ -157,6 +223,12 @@ function render() {
   $('#empty').hidden = failed || list.length > 0;
   $('#awards').innerHTML = courses.filter((c) => done[c.id]).map((c) => `<li>🏅 ${esc(pick(c.title))}, ${fmt(done[c.id])}</li>`).join('');
   renderRoad();
+}
+
+function selectCourseFilter(selectedButton) {
+  document.querySelectorAll('[data-cat], #completed-filter').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button === selectedButton));
+  });
 }
 
 function renderAuth() {
@@ -237,6 +309,7 @@ function openAuthNotice(messageKey) {
 }
 
 function openCourse(id) {
+  closeSearchSuggestions();
   const c = courses.find((x) => x.id === id);
   if (!c) return;
   const langIdx = lang === 'es' ? 0 : 1;
@@ -272,14 +345,55 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'course-close') $('#dlg-course').close();
 });
 
-$('#q').addEventListener('input', (e) => { fQuery = e.target.value; render(); if (fQuery) $('#cursos').scrollIntoView(); });
+$('#q').addEventListener('input', (event) => {
+  fQuery = event.target.value;
+  render();
+  renderSearchSuggestions();
+});
+$('#q').addEventListener('focus', () => {
+  if ($('#q').value.trim()) renderSearchSuggestions();
+});
+$('#q').addEventListener('keydown', (event) => {
+  const suggestions = $('#search-suggestions');
+  const options = [...suggestions.querySelectorAll('[role="option"]:not([aria-disabled="true"])')];
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeSearchSuggestions();
+    return;
+  }
+  if (suggestions.hidden || !options.length) return;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    setActiveSearchSuggestion(activeSearchSuggestion + 1);
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    setActiveSearchSuggestion(activeSearchSuggestion < 0
+      ? options.length - 1
+      : activeSearchSuggestion - 1);
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+    options[activeSearchSuggestion < 0 ? 0 : activeSearchSuggestion].click();
+  }
+});
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.course-search')) closeSearchSuggestions();
+});
 $('#level').addEventListener('change', (e) => { fLevel = e.target.value; render(); });
 $('#aud').addEventListener('change', (e) => { fAud = e.target.value; render(); });
-document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
+document.querySelectorAll('[data-cat]').forEach((b) => b.addEventListener('click', () => {
   fCat = b.dataset.cat;
-  document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  fCompleted = false;
+  selectCourseFilter(b);
   render();
 }));
+$('#completed-filter').addEventListener('click', (event) => {
+  fCat = 'all';
+  fCompleted = true;
+  selectCourseFilter(event.currentTarget);
+  render();
+});
 
 $('#login').onclick = () => { if (!user) openAuth('login'); };
 $('#register').onclick = () => {
@@ -330,6 +444,9 @@ async function signOut() {
     csrfToken = '';
     Object.keys(done).forEach((courseId) => delete done[courseId]);
     enrolled.clear();
+    fCompleted = false;
+    fCat = 'all';
+    selectCourseFilter($('[data-cat="all"]'));
     authError = '';
     save('authChanged', Date.now());
     renderAuth(); renderAuthStatus();
@@ -374,6 +491,9 @@ async function loadAuthState() {
   } else {
     Object.keys(done).forEach((courseId) => delete done[courseId]);
     enrolled.clear();
+    fCompleted = false;
+    fCat = 'all';
+    selectCourseFilter($('[data-cat="all"]'));
   }
 }
 

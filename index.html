@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="js/main.js" defer></script>
+  <link rel="stylesheet" href="css/styles.css?v=home-center-1">
+  <script src="js/main.js?v=course-search-1" defer></script>
 </head>
 <body>
 <header class="top">
@@ -25,7 +25,10 @@
     <a href="#reconocimiento" data-i18n="nav_award"></a>
     <a href="#contacto" data-i18n="nav_contact"></a>
   </nav>
-  <input id="q" type="search" data-i18n-ph="search">
+  <div class="course-search">
+    <input id="q" type="search" data-i18n-ph="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-suggestions" autocomplete="off">
+    <div id="search-suggestions" class="course-search-suggestions" role="listbox" hidden></div>
+  </div>
   <div class="tools">
     <button id="login" type="button" class="ghost"></button>
     <button id="register" type="button" class="solid"></button>
@@ -92,6 +95,7 @@
         <button class="chip" data-cat="populares" aria-pressed="false" data-i18n="cat_pop"></button>
         <button class="chip" data-cat="poco-conocidas" aria-pressed="false" data-i18n="cat_rare"></button>
       </div>
+      <button id="completed-filter" class="chip" type="button" aria-pressed="false" data-i18n="completed_filter"></button>
       <select id="level" aria-label="Level">
         <option value="all" data-i18n="lvl_all"></option>
         <option value="basico" data-i18n="lvl_basico"></option>

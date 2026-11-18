@@ -184,7 +184,7 @@ if ($hasAssessment) {
   <title><?= $course ? h($course['title'][$i]) . ' | ' : '' ?>GTools Academy</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=course-theme-2">
   <script>try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('theme')) || 'dark'; } catch (e) {}</script>
   <script src="js/course.js?v=<?= (int) filemtime(__DIR__ . '/js/course.js') ?>" defer></script>
 </head>

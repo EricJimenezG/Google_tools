@@ -42,3 +42,7 @@ Los detalles básicos, las habilidades y el material de cada curso son públicos
 Se almacenan el identificador de Google, correo, nombre, foto de perfil y fecha de finalización por curso. La pantalla de Google debe estar en modo de pruebas y autorizar las cuentas del equipo hasta que se decida publicar la aplicación. Para producción, usa HTTPS, una base de datos con un usuario de privilegios limitados y las URI de redireccionamiento del dominio desplegado.
 
 Al iniciar sesión, el avatar abre el menú de cuenta. **Administrar tu cuenta** abre `profile.html` en la misma pestaña. Cuando hay sesión, el idioma y el tema se guardan en MySQL para esa cuenta y se cargan al iniciar sesión desde otro dispositivo. Para visitantes sin sesión, las preferencias se guardan localmente en el navegador.
+
+El catálogo incluye el filtro **Completados**, que muestra únicamente los cursos finalizados por la cuenta activa; sus tarjetas muestran la acción **Revisar curso**.
+
+La búsqueda del catálogo sugiere cursos por nombre y permite abrir directamente la página del curso.
