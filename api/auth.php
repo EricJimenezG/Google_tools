@@ -194,17 +194,42 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         );
         $googleSub = $profile['id'] ?? '';
         $email = $profile['email'] ?? '';
-        $name = $profile['name'] ?? '';
+        $googleName = $profile['name'] ?? '';
+        $name = $googleName;
+        $firstName = $profile['given_name'] ?? '';
+        $lastName = $profile['family_name'] ?? '';
         $picture = $profile['picture'] ?? null;
         if (!is_string($googleSub) || $googleSub === '' ||
             !is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) ||
             ($profile['verified_email'] ?? false) !== true) {
             throw new RuntimeException('Google no devolvió una cuenta verificada.');
         }
+        if (!is_string($googleName)) {
+            $googleName = '';
+        }
         if (!is_string($name) || $name === '') {
             $name = $email;
         }
+        if (!is_string($firstName)) {
+            $firstName = '';
+        }
+        if (!is_string($lastName)) {
+            $lastName = '';
+        }
+        $firstName = trim($firstName);
+        $lastName = trim($lastName);
+        if ($firstName === '' && $lastName === '' && $googleName !== '') {
+            $nameParts = preg_split('/\s+/u', trim($googleName), -1, PREG_SPLIT_NO_EMPTY);
+            if (is_array($nameParts)) {
+                $firstName = array_shift($nameParts) ?? '';
+                $lastName = implode(' ', $nameParts);
+            }
+        }
+        $firstNameLength = preg_match_all('/./us', $firstName);
+        $lastNameLength = preg_match_all('/./us', $lastName);
         if (strlen($googleSub) > 255 || strlen($email) > 320 || strlen($name) > 255 ||
+            $firstNameLength === false || $firstNameLength > 255 ||
+            $lastNameLength === false || $lastNameLength > 255 ||
             (is_string($picture) && strlen($picture) > 2048)) {
             throw new RuntimeException('El perfil de Google excede los límites permitidos.');
         }
@@ -218,8 +243,8 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         $statement = $pdo->prepare(
-            'INSERT INTO users (google_sub, email, display_name, picture_url)
-             VALUES (:google_sub, :email, :display_name, :picture_url)
+            'INSERT INTO users (google_sub, email, display_name, first_name, last_name, picture_url)
+             VALUES (:google_sub, :email, :display_name, :first_name, :last_name, :picture_url)
              ON DUPLICATE KEY UPDATE
                email = VALUES(email),
                display_name = VALUES(display_name),
@@ -230,6 +255,8 @@ if ($action === 'callback' && $_SERVER['REQUEST_METHOD'] === 'GET') {
             'google_sub' => $googleSub,
             'email' => $email,
             'display_name' => $name,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'picture_url' => is_string($picture) ? $picture : null,
         ]);
         $statement = $pdo->prepare('SELECT id FROM users WHERE google_sub = :google_sub');

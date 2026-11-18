@@ -34,15 +34,16 @@ if (!course_has_assessment($course)) {
 try {
     $pdo = database();
     $statement = $pdo->prepare(
-        'SELECT ar.passed_at
+        'SELECT ar.passed_at, u.first_name, u.last_name
          FROM course_assessment_results ar
          INNER JOIN course_progress cp
            ON cp.user_id = ar.user_id AND cp.course_id = ar.course_id
+         INNER JOIN users u ON u.id = ar.user_id
          WHERE ar.user_id = :user_id AND ar.course_id = :course_id'
     );
     $statement->execute(['user_id' => $user['id'], 'course_id' => $course['id']]);
-    $passedAt = $statement->fetchColumn();
-    if (!is_string($passedAt)) {
+    $recognition = $statement->fetch();
+    if (!is_array($recognition) || !is_string($recognition['passed_at'] ?? null)) {
         http_response_code(403);
         exit($messages['not_completed'][$i]);
     }
@@ -52,11 +53,20 @@ try {
     exit($messages['unavailable'][$i]);
 }
 
-preg_match('/^.{0,60}/su', trim((string) $user['display_name']), $m);
-$name = $m[0] ?? '';
-if ($name === '') {
-    $name = $i ? 'Student' : 'Estudiante';
+$firstName = trim((string) $recognition['first_name']);
+$lastName = trim((string) $recognition['last_name']);
+if ($firstName === '' || $lastName === '') {
+    header(
+        'Location: profile.html?complete_name=1&course_id=' . rawurlencode($course['id']) . '&lang=' . rawurlencode($lang),
+        true,
+        303
+    );
+    exit;
 }
+$name = trim($firstName . ' ' . $lastName);
+preg_match('/^.{0,60}/su', $name, $m);
+$name = $m[0] ?? '';
+$passedAt = $recognition['passed_at'];
 $date = DateTime::createFromFormat('!Y-m-d H:i:s', $passedAt, new DateTimeZone('UTC'));
 if (!$date) {
     error_log('Course recognition has an invalid completion date.');

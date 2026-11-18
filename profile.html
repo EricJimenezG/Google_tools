@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=profile-name-2">
   <script>try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('theme')) || 'dark'; } catch (e) {}</script>
-  <script src="js/profile.js" defer></script>
+  <script src="js/profile.js?v=profile-name-2" defer></script>
 </head>
 <body class="profile-page">
   <header class="top profile-header">
@@ -28,10 +28,27 @@
           <img id="profile-avatar" alt="" hidden>
           <span id="profile-initials" class="profile-initials" aria-hidden="true"></span>
           <div>
-            <h2 id="profile-name"></h2>
+            <div class="profile-name-heading">
+              <h2 id="profile-name"></h2>
+              <button id="profile-name-toggle" class="ghost profile-name-toggle" type="button" aria-expanded="false" aria-controls="profile-name-form" data-i18n="editCertificateName"></button>
+            </div>
             <p id="profile-email" class="note"></p>
           </div>
         </div>
+        <form id="profile-name-form" class="form profile-name-form" hidden>
+          <h2 data-i18n="recognitionName"></h2>
+          <label for="profile-first-name">
+            <span data-i18n="firstName"></span>
+            <input id="profile-first-name" name="firstName" type="text" autocomplete="given-name" maxlength="255" required>
+          </label>
+          <label for="profile-last-name">
+            <span data-i18n="lastName"></span>
+            <input id="profile-last-name" name="lastName" type="text" autocomplete="family-name" maxlength="255" required>
+          </label>
+          <button class="solid" type="submit" data-i18n="saveName"></button>
+          <p id="profile-name-status" class="note" role="status" aria-live="polite"></p>
+          <a id="profile-name-continue" class="solid" data-i18n="continueRecognition" hidden></a>
+        </form>
         <button id="profile-signout" class="ghost" type="button" data-i18n="logout"></button>
       </div>
 

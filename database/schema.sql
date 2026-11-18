@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
   google_sub VARCHAR(255) NOT NULL,
   email VARCHAR(320) NOT NULL,
   display_name VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255) NOT NULL DEFAULT '',
+  last_name VARCHAR(255) NOT NULL DEFAULT '',
   picture_url VARCHAR(2048) NULL,
   preferred_language VARCHAR(5) NOT NULL DEFAULT 'es',
   preferred_theme VARCHAR(5) NOT NULL DEFAULT 'dark',
