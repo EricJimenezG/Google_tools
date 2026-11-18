@@ -29,9 +29,13 @@ const I18N = {
     auth_notice_title: 'Registro requerido',
     progress_error: 'No se pudo guardar el progreso. Comprueba la conexión e inténtalo otra vez.',
     logout_error: 'No se pudo cerrar la sesión. Inténtalo otra vez.',
-    close: 'Cerrar', footer: 'Proyecto educativo, sin afiliación con Google.',
+    close: 'Cerrar', footer_description: 'Academia virtual con cursos y recursos guiados para aprender herramientas de Google.',
+    footer_disclaimer: 'Proyecto educativo independiente, sin afiliación ni respaldo de Google.',
+    footer_explore: 'Explora', footer_contact_heading: 'Contacto',
+    footer_contact_copy: '¿Tienes dudas o sugerencias? Escríbenos mediante el formulario de contacto.',
+    footer_contact_link: 'Ir al formulario', footer_rights: 'Proyecto educativo.',
     aud_all: 'Para todos', aud_maestros: 'Maestros', aud_alumnos: 'Alumnos', aud_general: 'Público general', for: 'Ideal para',
-    open_page: 'Abrir página del curso', get_award: 'Ver o guardar en PDF', src: 'Datos',
+    open_page: 'Abrir página del curso', get_award: 'Ver o guardar en PDF',
     nav_contact: 'Contacto', contact_sub: '¿Tienes dudas o quieres proponer un curso? Escríbenos.', email_label: 'Correo', role_label: 'Soy',
     role_maestro: 'Maestro/a', role_alumno: 'Alumno/a', role_otro: 'Otro', msg_label: 'Mensaje', send: 'Enviar mensaje',
     form_sending: 'Enviando...', form_ok: '¡Gracias! Recibimos tu mensaje.', form_invalid: 'Revisa los campos e inténtalo de nuevo.',
@@ -61,9 +65,13 @@ const I18N = {
     auth_notice_title: 'Registration required',
     progress_error: 'Could not save your progress. Check the connection and try again.',
     logout_error: 'Could not sign out. Please try again.',
-    close: 'Close', footer: 'Educational project, not affiliated with Google.',
+    close: 'Close', footer_description: 'An online academy with courses and guided resources to learn Google tools.',
+    footer_disclaimer: 'Independent educational project, not affiliated with or endorsed by Google.',
+    footer_explore: 'Explore', footer_contact_heading: 'Contact',
+    footer_contact_copy: 'Have a question or suggestion? Reach out through the contact form.',
+    footer_contact_link: 'Go to contact form', footer_rights: 'Educational project.',
     aud_all: 'For everyone', aud_maestros: 'Teachers', aud_alumnos: 'Students', aud_general: 'General public', for: 'Great for',
-    open_page: 'Open course page', get_award: 'View or save as PDF', src: 'Data',
+    open_page: 'Open course page', get_award: 'View or save as PDF',
     nav_contact: 'Contact', contact_sub: 'Have a question or want to suggest a course? Write to us.', email_label: 'Email', role_label: 'I am',
     role_maestro: 'Teacher', role_alumno: 'Student', role_otro: 'Other', msg_label: 'Message', send: 'Send message',
     form_sending: 'Sending...', form_ok: 'Thank you! We received your message.', form_invalid: 'Please check the fields and try again.',
@@ -114,7 +122,7 @@ function applyI18n() {
   $('#guest-language').setAttribute('aria-label', t('language'));
   $('#guest-theme').value = theme;
   $('#guest-theme').setAttribute('aria-label', t('theme'));
-  $('#source').textContent = source ? `${t('src')}: ${source === 'php' ? 'PHP' : 'JSON'}` : '';
+  $('#footer-year').textContent = String(new Date().getFullYear());
   $('#contact-form button').disabled = source !== 'php';
   $('#form-status').textContent = source === 'php' ? '' : t('form_nophp');
   applyTheme(); renderAuth(); renderAuthStatus(); render(); renderSearchSuggestions();

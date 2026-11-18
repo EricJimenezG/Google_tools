@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=home-center-1">
-  <script src="js/main.js?v=course-search-1" defer></script>
+  <link rel="stylesheet" href="css/styles.css?v=footer-redesign-1">
+  <script src="js/main.js?v=footer-redesign-1" defer></script>
 </head>
 <body>
 <header class="top">
@@ -147,7 +147,33 @@
   </section>
 </main>
 
-<footer class="foot"><small data-i18n="footer"></small><br><small id="source"></small></footer>
+<footer class="site-footer">
+  <div class="foot">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="footer-brand" href="#cursos">GTools Academy</a>
+        <p data-i18n="footer_description">Academia virtual con cursos y recursos guiados para aprender herramientas de Google.</p>
+        <p class="footer-disclaimer" data-i18n="footer_disclaimer">Proyecto educativo independiente, sin afiliación ni respaldo de Google.</p>
+      </div>
+      <nav class="footer-links" aria-labelledby="footer-links-title">
+        <h2 id="footer-links-title" data-i18n="footer_explore">Explora</h2>
+        <ul>
+          <li><a href="#cursos" data-i18n="nav_courses">Cursos</a></li>
+          <li><a href="#ruta" data-i18n="nav_roadmap">Ruta de aprendizaje</a></li>
+          <li><a href="#reconocimiento" data-i18n="nav_award">Reconocimiento</a></li>
+        </ul>
+      </nav>
+      <div class="footer-contact">
+        <h2 id="footer-contact-title" data-i18n="footer_contact_heading">Contacto</h2>
+        <p data-i18n="footer_contact_copy">¿Tienes dudas o sugerencias? Escríbenos mediante el formulario de contacto.</p>
+        <a href="#contacto" data-i18n="footer_contact_link">Ir al formulario</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <small>© <span id="footer-year">2026</span> GTools Academy. <span data-i18n="footer_rights">Proyecto educativo.</span></small>
+    </div>
+  </div>
+</footer>
 
 <dialog id="dlg-auth">
   <div>
